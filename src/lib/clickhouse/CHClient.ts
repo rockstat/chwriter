@@ -34,12 +34,13 @@ export class CHClient {
   params: QueryParams = {};
   uploadInterval: number;
   writers: { [k: string]: any } = {};
+  timeout: number = 5000;
 
   constructor(deps: Deps) {
+
     const { logger, config } = deps;
 
     this.log = logger.for(this);
-
 
     const options = config.get('clickhouse');
     const { dsn, uploadInterval } = options;
@@ -54,7 +55,7 @@ export class CHClient {
 
     if (auth) {
       const [user, password] = auth.split(':');
-      this.params = { user, password, ...this.params };
+      this.params = { user, password, database: this.db, ...this.params };
     }
 
     this.url = `${protocol}//${hostname}:${port}`;
@@ -80,14 +81,15 @@ export class CHClient {
    */
   async execute(body: string): Promise<string> {
 
-    const queryUrl = this.dsn + '/?' + qs.stringify(this.params);
+    const queryUrl = this.url + '/?' + qs.stringify(this.params);
     let responseBody;
 
     try {
 
       const res = await fetch(queryUrl, {
         method: METHOD_POST,
-        body: body
+        body: body,
+        timeout: this.timeout
       });
       responseBody = await res.text();
 
@@ -103,8 +105,6 @@ export class CHClient {
 
     // this.stat.mark('clickhouse.error.upload');
     throw new Error(`Wrong HTTP code from ClickHouse: ${responseBody}`);
-
-
   }
 
   /**
@@ -114,14 +114,14 @@ export class CHClient {
    */
   async query(query: string): Promise<string> {
 
-    const queryUrl = this.dsn + '/?' + qs.stringify(Object.assign({}, this.params, { query }));
+    const queryUrl = this.url + '/?' + qs.stringify(Object.assign({}, this.params, { query }));
     let responseBody;
 
     try {
 
       // const startAt = timeMark();
 
-      const res = await fetch(queryUrl);
+      const res = await fetch(queryUrl, {timeout: this.timeout});
       responseBody = await res.text();
 
       if (res.ok) {
@@ -202,7 +202,7 @@ export class CHClient {
       }
     }
 
-    const queryUrl = this.dsn + '/?' + qs.stringify(
+    const queryUrl = this.url + '/?' + qs.stringify(
       Object.assign(
         {},
         this.params,
@@ -216,7 +216,8 @@ export class CHClient {
       try {
         const res = await fetch(queryUrl, {
           method: 'POST',
-          body: buffer
+          body: buffer,
+          timeout: this.timeout
         });
         const body = await res.text();
 
@@ -253,5 +254,3 @@ export class CHClient {
   }
 
 }
-
-module.exports = CHClient;

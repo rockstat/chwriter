@@ -1,7 +1,10 @@
 export const SERVICE_BAND = 'band';
 export const SERVICE_KERNEL = 'kernel';
 export const SERVICE_TRACK = 'track';
-export const CALL_IAMALIVE = '__iamalive';
+export const METHOD_IAMALIVE = '__iamalive';
+export const METHOD_STATUS = '__status';
+export const COMMON_CHANNEL = 'listener';
+
 
 
 export const CONTENT_TYPE_JSON = 'application/json; charset=utf-8';

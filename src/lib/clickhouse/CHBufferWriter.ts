@@ -151,5 +151,3 @@ export class CHBufferWriter {
 
 }
 
-
-module.exports = CHBufferWriter;

@@ -6,6 +6,7 @@ import { RPCConfig } from "@app/types";
 
 import { RPCAdapter } from './abstract'
 import { Deps } from "@app/AppServer";
+import { COMMON_CHANNEL } from "@app/constants";
 
 type MsgReceiver = (data: any) => void;
 type ReceiverObject = {
@@ -28,17 +29,28 @@ export class RPCAdapterRedis implements RPCAdapter {
 
   constructor(deps: Deps) {
     const { logger, config } = deps;
-    this.log = logger.for(this);
     this.config = config.get('rpc');
-    const { name } = this.config;
-    handleSetup(this);
-    this.rsub = new RedisClient(deps);
-    this.rsub.on('connect', () => {
-      this.rsub.subscribe(name, this.redisMsg);
-    })
-    this.log.info('started');
-    this.rpub = new RedisClient(deps)
 
+    const {
+      name,
+      listen_direct,
+      listen_all
+    } = this.config;
+
+    this.log = logger.for(this);
+    this.rsub = new RedisClient(deps);
+
+    this.rsub.on('connect', () => {
+      if (listen_direct) {
+        this.rsub.subscribe(name, this.redisMsg);
+      }
+      if (listen_all) {
+        this.rsub.subscribe(COMMON_CHANNEL, this.redisMsg);
+      }
+    })
+
+    this.rpub = new RedisClient(deps)
+    this.log.info('started');
   }
 
   setReceiver<K extends keyof ReceiverObject>(obj: ReceiverObject, fname: K): void {

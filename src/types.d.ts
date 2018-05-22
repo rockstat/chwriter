@@ -148,6 +148,8 @@ export interface RedisConfig {
 // ##### RPC #####
 export interface RPCConfig {
   name: string;
+  listen_all: boolean;
+  listen_direct: boolean;
 }
 
 // ##### CONFIG ROOT #####

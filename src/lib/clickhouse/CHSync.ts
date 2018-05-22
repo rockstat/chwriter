@@ -1,5 +1,5 @@
 
-import { DefaultDict, defaultDict } from './defaultDict';
+import { DefaultDict, defaultDict } from '@app/lib/struct/DefaultDict';
 import * as  Lazy from 'lazy.js';
 import { WriterCHTableCols, WriterCHTableOpts, WriterClickHouseConfig } from '@app/types';
 import { Deps } from '@app/AppServer';
@@ -31,7 +31,7 @@ const showAlterTable = (name: string, cols: WriterCHTableCols, table_options: Wr
 const newCols = (schemaCols: Array<string>, currentCols: Array<string>) => schemaCols.filter(col => currentCols.indexOf(col) < 0);
 
 
-class CHSync {
+export class CHSync {
 
   log: Logger;
   client: CHClient;
@@ -147,5 +147,3 @@ class CHSync {
     };
   }
 }
-
-module.exports = CHSync;

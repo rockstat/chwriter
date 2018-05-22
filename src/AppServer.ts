@@ -4,7 +4,11 @@ import { IdService, Configurer, RPCAdapterRedis, RPCAgnostic } from '@app/lib';
 
 import { StatsDMetrics } from '@app/lib/metrics/statsd';
 import { RPCRegisterStruct, RPCConfig } from '@app/types';
-import { SERVICE_BAND, CALL_IAMALIVE, SERVICE_KERNEL } from '@app/constants';
+import { SERVICE_BAND, METHOD_IAMALIVE, SERVICE_KERNEL, METHOD_STATUS } from '@app/constants';
+
+import { format as dateFormat } from 'cctz';
+import { CHClient } from '@app/lib/clickhouse/CHClient';
+import { CHSync } from '@app/lib/clickhouse/CHSync';
 
 export interface Deps {
   logger: LogFactory,
@@ -17,50 +21,59 @@ export class AppServer {
 
   logger: LogFactory;
   log: Logger;
-  private _deps: Deps;
+  deps: Deps;
 
   rpcConfig: RPCConfig;
-  rpcRedis: RPCAdapterRedis;
   rpc: RPCAgnostic;
+  rpcRedis: RPCAdapterRedis;
+
+  appStarted: Date = new Date();
+
+  chc: CHClient;
+  chs: CHSync;
 
   constructor() {
-
-    this._deps = {
-      logger: new LogFactory(this.deps.config),
+    const config = new Configurer();
+    const logger = new LogFactory(config);
+    this.deps = {
       id: new IdService(),
-      config: new Configurer(),
+      logger,
+      config
     }
 
-    this.rpcConfig = this.deps.config.get('rpc');
-    this.rpcRedis = new RPCAdapterRedis()
+    this.log = logger.for(this);
+    this.log.info('Starting service');
 
-    this.log = this.deps.logger.for(this);
-    this.log.info('Starting Handler service');
+    this.rpcConfig = config.get('rpc');
+    this.rpc = new RPCAgnostic(this.deps);
+    this.rpcRedis = new RPCAdapterRedis(this.deps);
+
+    this.chc = new CHClient(this.deps);
+    this.chs = new CHSync(config.get('clickhouse'), this.chc, this.deps);
+    // setTimeout(() => { this.chc.query('SELECT 1').then(res => this.log.info(res)) } , 2000);
+    this.setup().then();
   }
 
-  setup() {
-    this.rpcRedis.setup(this.rpcConfig);
+  async setup() {
     this.rpcRedis.setReceiver(this.rpc, 'dispatch');
     this.rpc.setup(this.rpcRedis);
 
-    this.rpc.register('status', async () => {
-      return { 'status': "i'm ok!" };
+    await this.chs.sync();
+
+    this.rpc.register(METHOD_STATUS, async () => {
+      const now = new Date();
+      const appUptime = Number(now) - Number(this.appStarted);
+      return {
+        status: "i'm ok!",
+        app_started: Number(this.appStarted),
+        app_uptime: appUptime,
+        app_uptime_h: dateFormat('%X', Math.round(appUptime / 1000)),
+        methods: []
+      };
     });
-
-    this.rpc.register<RPCRegisterStruct>('services', async (data: { [k: string]: string }) => {
-      if (data.methods) {
-        const updateHdrs: string[] = [];
-        for (const [name, method, role] of data.methods) {
-
-        }
-
-      }
-      return { result: true };
-    });
-    // notify band
-    setImmediate(() => {
-      this.rpc.notify(SERVICE_BAND, CALL_IAMALIVE, { name: SERVICE_KERNEL })
-    })
+    setTimeout(() => {
+      this.rpc.notify(SERVICE_BAND, METHOD_IAMALIVE, { name: this.rpcConfig.name })
+    }, 500)
     // await this.rpc.notify('any', 'listener', msg);
   }
 
@@ -72,12 +85,6 @@ export class AppServer {
   // }
 
   rpcHandlers: { [k: string]: [string, string] } = {};
-
-
-  get deps() {
-    return this._deps;
-  }
-
 
   private onStop() {
     this.log.info('Stopping...');

@@ -7,8 +7,8 @@ import { METHODS } from "http";
 import { reject, method } from "bluebird";
 import { RPCAdapter } from "@app/lib/rpc/adapter/abstract";
 import { RPCConfig, RPCRequest, RPCResponse, RPCResponseError, RPCRequestParams } from "@app/types";
-import { SERVICE_KERNEL } from "@app/constants";
 import { StatsDMetrics } from "@app/lib/metrics";
+import { Deps } from "@app/AppServer";
 
 
 // RPC refs
@@ -33,27 +33,27 @@ interface RPCWaitingCall {
 }
 type RPCWaitingCalls = { [k: string]: RPCWaitingCall | undefined };
 
-
-@Service()
 export class RPCAgnostic {
 
-  @Inject()
   ids: IdService;
-
-  @Inject()
   metrics: StatsDMetrics;
-
-  config: RPCConfig;
   started: boolean = false;
   timeout: number = 2000;
   log: Logger;
   queue: RPCWaitingCalls = {};
   methods: RpcMethods = {};
   adapter: RPCAdapter;
+  listen_direct: boolean;
+  listen_all: boolean;
+  name: string;
 
-  constructor(config: Configurer, logFactory: LogFactory) {
-    this.config = config.get('rpc');
-    this.log = logFactory.for(this);
+  constructor(deps: Deps) {
+    const { config, logger } = deps;
+    const { name, listen_all, listen_direct } = config.get('rpc');
+    this.name = name;
+    this.listen_all = listen_all;
+    this.listen_direct = listen_direct;
+    this.log = logger.for(this);
   }
 
   setup(adapter: RPCAdapter) {
@@ -64,20 +64,22 @@ export class RPCAgnostic {
 
   publish(msg: RPCRequest | RPCResponse | RPCResponseError): void {
     if ('method' in msg && msg.method !== undefined) {
-      msg.method = `${msg.to}:${msg.method}:${SERVICE_KERNEL}`;
+      msg.method = `${msg.to}:${msg.method}:${this.name}`;
     }
     this.adapter.send(msg.to, msg)
   }
 
   dispatch = async (msg: RPCResponse | RPCResponseError | RPCRequest): Promise<void> => {
+
     if ('method' in msg && msg.method !== undefined) {
       const names = msg.method.split(':');
       if (names.length === 3) {
-        msg.from = names[0];
+        msg.to = names[0];
         msg.method = names[1];
-        msg.to = names[2];
+        msg.from = names[2];
       }
     }
+    // Handling request
     if ('method' in msg && msg.method !== undefined && msg.to && msg.params !== undefined) {
       this.dispatchRequest(msg).then(res => {
         if (res) {
@@ -85,6 +87,7 @@ export class RPCAgnostic {
         }
       })
     }
+    // Handling response
     else if ('id' in msg && msg.id !== undefined && ('result' in msg || 'error' in msg)) {
       this.dispatchResponse(msg)
     }
@@ -116,7 +119,7 @@ export class RPCAgnostic {
         return {
           jsonrpc: RPC20,
           id: msg.id,
-          from: SERVICE_KERNEL,
+          from: this.name,
           to: from,
           result: result || null
         }
@@ -130,7 +133,7 @@ export class RPCAgnostic {
   notify(service: string, method: string, params: RPCRequestParams = null): void {
     const msg: RPCRequest = {
       jsonrpc: RPC20,
-      from: SERVICE_KERNEL,
+      from: this.name,
       to: service,
       method: method,
       params: params
@@ -143,7 +146,7 @@ export class RPCAgnostic {
       const id = this.ids.rpcId();
       const msg: RPCRequest = {
         jsonrpc: RPC20,
-        from: SERVICE_KERNEL,
+        from: this.name,
         to: service,
         id: id,
         method: method,
@@ -173,7 +176,7 @@ export class RPCAgnostic {
     if ('id' in msg && msg.id !== undefined) {
       return {
         id: msg.id,
-        from: SERVICE_KERNEL,
+        from: this.name,
         to: msg.from,
         jsonrpc: RPC20,
         error: {

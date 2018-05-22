@@ -1,0 +1,26 @@
+---
+name: Rockstat clickhouse writer
+rpc:
+  name: clickhouse_writer
+  listen_all: true
+  listen_direct: true
+
+log:
+  use: pino
+  pino:
+    safe: true
+    level: <%= env.LOG_LEVEL || 'info' %>
+    prettyPrint: false
+
+
+redis:
+  host: <%= env.REDIS_HOST || '127.0.0.1' %>
+  port: <%= env.REDIS_PORT || '6379' %>
+  db: <%= env.REDIS_DB || 2 %>
+  url:
+
+clickhouse:
+  enabled: true
+  dsn: <%= env.CH_DSN %>
+  uploadInterval: 2 #seconds
+  sync: true
