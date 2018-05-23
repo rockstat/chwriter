@@ -1,7 +1,6 @@
 import { EventEmitter } from "events";
 
 import { IdService, Configurer } from "@app/lib";
-import { handleSetup } from "@app/helpers/class";
 import { Logger, LogFactory } from "@app/log";
 import { METHODS } from "http";
 import { reject, method } from "bluebird";
@@ -57,7 +56,6 @@ export class RPCAgnostic {
   }
 
   setup(adapter: RPCAdapter) {
-    handleSetup(this);
     this.adapter = adapter;
     this.log.info('started');
   }

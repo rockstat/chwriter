@@ -1,5 +1,4 @@
 import { RedisClient } from "@app/lib/redis";
-import { handleSetup } from "@app/helpers/class";
 import { Logger, LogFactory } from "@app/log";
 import { Configurer } from "@app/lib";
 import { RPCConfig } from "@app/types";
