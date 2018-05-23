@@ -1,65 +1,84 @@
 import 'reflect-metadata';
-import { LogFactory, Logger } from '@app/log';
-import { IdService, Configurer, RPCAdapterRedis, RPCAgnostic } from '@app/lib';
-
+import {
+  LogFactory,
+  Logger
+} from '@app/log';
+import {
+  IdService,
+  Configurer,
+  RPCAdapterRedis,
+  RPCAgnostic
+} from '@app/lib';
 import { StatsDMetrics } from '@app/lib/metrics/statsd';
-import { RPCRegisterStruct, RPCConfig } from '@app/types';
-import { SERVICE_BAND, METHOD_IAMALIVE, SERVICE_KERNEL, METHOD_STATUS } from '@app/constants';
-
+import {
+  RPCRegisterStruct,
+  RPCConfig
+} from '@app/types';
+import {
+  SERVICE_BAND,
+  METHOD_IAMALIVE,
+  SERVICE_KERNEL,
+  METHOD_STATUS,
+  BROADCAST
+} from '@app/constants';
 import { format as dateFormat } from 'cctz';
 import { CHClient } from '@app/lib/clickhouse/CHClient';
 import { CHSync } from '@app/lib/clickhouse/CHSync';
+import { CHWriter } from '@app/lib/clickhouse/Writer';
 
-export interface Deps {
-  logger: LogFactory,
-  id: IdService,
+/**
+ * Dependency container
+ */
+export class Deps {
+  logger: LogFactory;
+  id: IdService;
   config: Configurer;
+  stat: StatsDMetrics;
+  constructor(obj: { [k: string]: any } = {}) {
+    Object.assign(this, obj);
+  }
 }
 
-
+/**
+ * Main application. Contains main logic
+ */
 export class AppServer {
 
   logger: LogFactory;
   log: Logger;
   deps: Deps;
-
   rpcConfig: RPCConfig;
   rpc: RPCAgnostic;
   rpcRedis: RPCAdapterRedis;
-
   appStarted: Date = new Date();
-
-  chc: CHClient;
-  chs: CHSync;
+  chw: CHWriter;
 
   constructor() {
     const config = new Configurer();
     const logger = new LogFactory(config);
-    this.deps = {
+    this.deps = new Deps({
       id: new IdService(),
       logger,
-      config
-    }
-
+      config,
+    });
+    this.deps.stat = new StatsDMetrics(this.deps);
     this.log = logger.for(this);
     this.log.info('Starting service');
-
     this.rpcConfig = config.get('rpc');
     this.rpc = new RPCAgnostic(this.deps);
     this.rpcRedis = new RPCAdapterRedis(this.deps);
-
-    this.chc = new CHClient(this.deps);
-    this.chs = new CHSync(config.get('clickhouse'), this.chc, this.deps);
-    // setTimeout(() => { this.chc.query('SELECT 1').then(res => this.log.info(res)) } , 2000);
+    this.chw = new CHWriter(this.deps)
     this.setup().then();
   }
 
+  /**
+   * Required remote functuins
+   */
   async setup() {
-    this.rpcRedis.setReceiver(this.rpc, 'dispatch');
+    await this.chw.init();
     this.rpc.setup(this.rpcRedis);
-
-    await this.chs.sync();
-
+    this.rpcRedis.setReceiver(this.rpc, 'dispatch');
+    this.rpc.register(BROADCAST, this.chw.write);
     this.rpc.register(METHOD_STATUS, async () => {
       const now = new Date();
       const appUptime = Number(now) - Number(this.appStarted);
@@ -74,22 +93,18 @@ export class AppServer {
     setTimeout(() => {
       this.rpc.notify(SERVICE_BAND, METHOD_IAMALIVE, { name: this.rpcConfig.name })
     }, 500)
-    // await this.rpc.notify('any', 'listener', msg);
   }
 
-  // rpcGateway = async (key: string, msg: IncMsg): Promise<FlexOutgoingMessage> => {
-  //   if (msg.service && msg.name && this.rpcHandlers[key]) {
-  //     return await this.rpc.request<any>(msg.service, msg.name, msg)
-  //   }
-  //   return this.defaultHandler(key, msg);
-  // }
-
-  rpcHandlers: { [k: string]: [string, string] } = {};
-
+  /**
+   * Graceful stot
+   */
   private onStop() {
     this.log.info('Stopping...');
   }
 
+  /**
+   * Sinals listening
+   */
   private attachSignals() {
     // Handles normal process termination.
     process.on('exit', () => this.onStop());

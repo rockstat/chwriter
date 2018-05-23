@@ -3,16 +3,17 @@ clickhouse:
 
   # data location
   # it mean in which table write event
-  track:
-    default: events_v2
-    activity: activity
-    scroll: activity
-  webhook:
-    default: webhooks_v2
-    test/test: wh_test_test
-  pixel:
-    default: events_v2
-    checkid: id_checks
+  locations:
+    track:
+      default: events_v2
+      activity: activity
+      scroll: activity
+    webhook:
+      default: webhooks_v2
+      test/test: wh_test_test
+    pixel:
+      default: events_v2
+      checkid: id_checks
 
   # common tables columnts
   # all tables by default implements this cols
@@ -21,7 +22,7 @@ clickhouse:
     date: Date
     dateTime: DateTime
     timestamp: UInt64
-    channel: Enum8('' = 0, 'other' = 1, 'alcojs' = 5, 'webhook' = 6, 'pixel' = 7, 'r1' = 8 , 'r2' = 9, 'r3' = 10)
+    channel: Enum8('' = 0, 'other' = 1, 'track' = 5, 'webhook' = 6, 'pixel' = 7, 'redir' = 8, 'ws' = 9, 'r1' = 33 , 'r2' = 34, 'r3' = 35)
     projectId: UInt32
     name: String
 
@@ -51,7 +52,7 @@ clickhouse:
       page_referrer: String
       page_title: String
       page_domain: String
-      page_proto: Enum8('' = 0, 'http' = 1, 'https' = 2, 'other' = 3)
+      page_proto: Enum8('' = 0, 'http' = 1, 'https' = 2, 'other' = 3, 'ws' = 4)
       page_query_utm_source: String
       page_query_utm_campaign: String
       page_query_utm_medium: String

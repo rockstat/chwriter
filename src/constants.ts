@@ -3,12 +3,9 @@ export const SERVICE_KERNEL = 'kernel';
 export const SERVICE_TRACK = 'track';
 export const METHOD_IAMALIVE = '__iamalive';
 export const METHOD_STATUS = '__status';
-export const COMMON_CHANNEL = 'listener';
-
-
+export const BROADCAST = 'broadcast';
 
 export const CONTENT_TYPE_JSON = 'application/json; charset=utf-8';
-
 export const HContentType = 'Content-Type';
 
 export const STATUS_OK = 200;
@@ -23,8 +20,6 @@ export const METHOD_OPTIONS = 'OPTIONS';
 export const METHOD_POST = 'POST';
 export const METHOD_GET = 'GET';
 
-
-// === ENVs
 export const ENV_DEV = 'dev';
 export const ENV_PROD = 'prod';
 export const ENV_STAGE = 'stage';

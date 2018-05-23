@@ -6,7 +6,7 @@ import { RPCConfig } from "@app/types";
 
 import { RPCAdapter } from './abstract'
 import { Deps } from "@app/AppServer";
-import { COMMON_CHANNEL } from "@app/constants";
+import { BROADCAST } from "@app/constants";
 
 type MsgReceiver = (data: any) => void;
 type ReceiverObject = {
@@ -45,7 +45,7 @@ export class RPCAdapterRedis implements RPCAdapter {
         this.rsub.subscribe(name, this.redisMsg);
       }
       if (listen_all) {
-        this.rsub.subscribe(COMMON_CHANNEL, this.redisMsg);
+        this.rsub.subscribe(BROADCAST, this.redisMsg);
       }
     })
 

@@ -12,7 +12,6 @@ log:
     level: <%= env.LOG_LEVEL || 'info' %>
     prettyPrint: false
 
-
 redis:
   host: <%= env.REDIS_HOST || '127.0.0.1' %>
   port: <%= env.REDIS_PORT || '6379' %>
@@ -24,3 +23,10 @@ clickhouse:
   dsn: <%= env.CH_DSN %>
   uploadInterval: 2 #seconds
   sync: true
+
+metrics:
+  statsd:
+    host: <%= env.STATSD_HOST || '127.0.0.1' %>
+    port: 8125
+    debug: false
+    prefix: krn

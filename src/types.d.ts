@@ -125,7 +125,7 @@ export type WriterClickHouseConfig = {
   dsn: string;
   uploadInterval: number; // seconds
   sync: boolean;
-  distribution: { [key: string]: any };// incoming data distribotion among tables, using internal routing key
+  locations: { [key: string]: any };// incoming data distribotion among tables, using internal routing key
   base: WriterCHTableCols; // common fields for all tables
   tables: WriterCHTables; // tables definition
 };

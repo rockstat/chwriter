@@ -1,7 +1,3 @@
-/**
- * Simple DefaultDict Implementation
- */
-
 export type DefaultDict<T> = {
   get: (key: string) => T;
   set: (key: string, val: T) => void;
@@ -11,6 +7,9 @@ export type DefaultDict<T> = {
   dict: { [k: string]: T };
 }
 
+/**
+ * Simple DefaultDict Implementation
+ */
 export function defaultDict<T>(type: new () => T): DefaultDict<T> {
   const dict: { [k: string]: T } = {};
   return {

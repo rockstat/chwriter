@@ -38,6 +38,4 @@ export class StatsDMetrics implements MetricsCollector {
   time(metric: string, duration: number, tags?: { [k: string]: string | number }): void {
     this.client.timing(metric, duration, tags);
   }
-
 }
-
