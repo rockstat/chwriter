@@ -6,10 +6,10 @@ import * as dotenv from 'dotenv';
 import * as mergeOptions from 'merge-options';
 import * as consts from '@app/constants';
 import {
-  WriterClickHouseConfig,
+  ClickHouseConfig,
   WriterCHTableDefinition,
   PinoConfig,
-  Config,
+  RootConfig,
   Envs,
   RedisConfig,
 } from '../types';
@@ -22,8 +22,8 @@ dotenv.config({ path: '.env.local' });
 export class Configurer {
 
   configDir: string = './config';
-  config: Config;
-  ch: WriterClickHouseConfig;
+  config: RootConfig;
+  ch: ClickHouseConfig;
   env: Envs;
   ejsConfig: EjsOptions = {}
 
@@ -47,14 +47,14 @@ export class Configurer {
    */
   get logConfig(): PinoConfig { return this.config.log.pino; }
   get redis(): RedisConfig { return this.config.redis; }
-  get clickhouse(): WriterClickHouseConfig { return this.ch; }
+  get clickhouse(): ClickHouseConfig { return this.ch; }
 
 
   /**
    * Unisersal config getter
    * @param section
    */
-  get<S extends keyof Config>(section: S): Config[S] {
+  get<S extends keyof RootConfig>(section: S): RootConfig[S] {
     return this.config[section];
   }
 
@@ -62,7 +62,7 @@ export class Configurer {
    * Handling ClickHouse table extendability via _options: extend: basename
    * @param config ClickHouse configuration
    */
-  handleCHExtend(config: WriterClickHouseConfig): WriterClickHouseConfig {
+  handleCHExtend(config: ClickHouseConfig): ClickHouseConfig {
     const { base, tables, ...rest } = config;
     for (const table of Object.keys(tables)) {
       const definition = tables[table];

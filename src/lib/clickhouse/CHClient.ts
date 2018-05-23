@@ -1,19 +1,27 @@
 import { promisify } from 'bluebird';
 import fetch from 'node-fetch';
-import { unlink } from 'fs';
+import { unlink, writeFile } from 'fs';
 import * as qs from 'qs';
 import { Deps } from '@app/AppServer';
 import { Logger } from '@app/log';
 import { parse as urlParse } from 'url';
-import { WriterClickHouseConfig, QueryParams } from '@app/types';
+import { ClickHouseConfig } from '@app/types';
 import { CHBuffer, BufferDust } from '@app/lib/clickhouse/CHBuffer';
-import { METHOD_POST } from '@app/constants';
+import { METHOD_POST, METHOD_OPTIONS } from '@app/constants';
 
 type WritersDict = {
   [k: string]: any
 };
 
-const unlinkAsync = promisify(unlink)
+interface CHQueryParams {
+  user?: string;
+  password?: string;
+  database: string;
+  query?: string;
+}
+
+const unlinkAsync = promisify(unlink);
+const writeFileAsync = promisify(writeFile);
 
 /**
  * Base ClickHouse lib.
@@ -22,47 +30,48 @@ const unlinkAsync = promisify(unlink)
  * @property {ServiceStat} stat Internal stat service
  */
 export class CHClient {
-
-  getWriter: (table: any) => any;
   log: Logger;
   url: string;
   db: string;
-  options: WriterClickHouseConfig;
-  params: QueryParams = {};
+  options: ClickHouseConfig;
+  params: CHQueryParams;
   writers: WritersDict = {};
   timeout: number = 5000;
-  uploadInterval: number = 2000;
+  emergency_dir: string;
 
   constructor(deps: Deps) {
-
     const { logger, config } = deps;
+    const options = this.options = config.get('clickhouse');
+    const { dsn } = options;
     this.log = logger.for(this);
-    const options = config.get('clickhouse');
-    const { dsn, uploadInterval } = options;
-    this.uploadInterval = uploadInterval;
-    this.log.info('Starting ClickHouse client', { uploadInterval, dsn: dsn });
+    this.log.info('Starting ClickHouse client', { uploadInterval: options.uploadInterval, dsn: dsn });
     const { port, hostname, protocol, path, auth } = urlParse(dsn);
     this.db = (path || '').slice(1);
+    this.params = { database: this.db };
     if (auth) {
       const [user, password] = auth.split(':');
-      this.params = { user, password, database: this.db, ...this.params };
+      this.params = { user, password, ...this.params };
     }
     this.url = `${protocol}//${hostname}:${port}`;
-    this.getWriter = (table) => {
-      if (!this.writers[table]) {
-        this.writers[table] = new CHBuffer({ table }, deps);
-      }
-      return this.writers[table];
-    };
   }
 
+  /**
+   *
+   * @param table table name
+   */
+  getWriter(table: string): CHBuffer {
+    if (!this.writers[table]) {
+      this.writers[table] = new CHBuffer({ table });
+    }
+    return this.writers[table];
+  }
   /**
    * Setup upload interval
    */
   init(): void {
     setInterval(() => {
       this.flushWriters()
-    }, this.uploadInterval * 1000);
+    }, this.options.uploadInterval * 1000);
     this.log.info('started upload timer');
   }
 
@@ -70,51 +79,49 @@ export class CHClient {
    * Execution data modification query
    * @param query
    */
-  async execute(body: string): Promise<string> {
-
+  async execute(body: string): Promise<string | undefined> {
     const queryUrl = this.url + '/?' + qs.stringify(this.params);
     let responseBody;
-    try {
-      const res = await fetch(queryUrl, {
-        method: METHOD_POST,
-        body: body,
-        timeout: this.timeout
-      });
-      responseBody = await res.text();
-      if (res.ok) {
-        return responseBody;
-      }
-    } catch (error) {
-      throw error;
+    // try {
+    const res = await fetch(queryUrl, {
+      method: METHOD_POST,
+      body: body,
+      timeout: this.timeout
+    });
+    responseBody = await res.text();
+    if (!res.ok) {
+      throw new Error(responseBody);
     }
-    throw new Error(`Wrong HTTP code from ClickHouse: ${responseBody}`);
+    // } catch (error) {
+    //   throw error;
+    // }
+    return responseBody;
   }
 
   /**
    * Executes query and return resul
    * @param query
    */
-  async query(query: string): Promise<string> {
-
+  async query(query: string): Promise<string | undefined> {
     const queryUrl = this.url + '/?' + qs.stringify(Object.assign({}, this.params, { query }));
     let responseBody;
-    try {
-      const res = await fetch(queryUrl, { timeout: this.timeout });
-      responseBody = await res.text();
-      if (res.ok) {
-        return responseBody;
-      }
-    } catch (error) {
-      throw error;
+    // try {
+    const res = await fetch(queryUrl, { timeout: this.timeout });
+    responseBody = await res.text();
+    if (!res.ok) {
+      throw new Error(responseBody);
     }
-    throw new Error(`Wrong HTTP code from ClickHouse: ${responseBody}`);
+    // } catch (error) {
+    //   this.log.error('CH write error', error);
+    // }
+    return responseBody;
   }
 
   /**
    * Executes query and return stream
    * @param query
    */
-  querySream(query: QueryParams) {
+  querySream(query: string) {
     throw new Error('Not implemented');
   }
 
@@ -123,78 +130,70 @@ export class CHClient {
    */
   tablesColumns(): Promise<Array<{ table: string, name: string, type: string }>> {
     return this.query(`SELECT table, name, type FROM system.columns WHERE database = '${this.db}' FORMAT JSON`)
-      .then(result => JSON.parse(result.toString()))
-      .then(parsed => parsed.data);
+      .then((result) => {
+        return result ? JSON.parse(result.toString()).data : [];
+      });
+  }
+
+  /**
+   * Emergincy write in file
+   */
+  exceptWrite(dust: BufferDust) {
+    const fn = `${this.options.emergency_dir}/${dust.time}.json`;
+    writeFileAsync(fn, dust.buffer)
+      .then(_ => this.log.info(`saved emergency file: ${fn}`))
+      .catch(error => this.log.error(`cant create emergency ${fn}`));
   }
 
   /**
    * Flushing data
    */
   flushWriters(): void {
-    const tables = Object.entries(this.writers).filter(e => e[1] !== undefined).map(e => e[0]).sort();
-    const delay = Math.round(this.uploadInterval / tables.length);
-    let i = 0;
-
-    for (const table of tables) {
-
+    const tables = Object.entries(this.writers)
+      .filter(e => !!e[1])
+      .map(e => e[0]).sort();
+    for (const [i, table] of tables.entries()) {
       setTimeout(() => {
         const writer = this.writers[table];
         this.writers[table] = undefined;
-        this.log.debug(`uploding ${table}`);
-
         writer.close()
-          .then(({ table, fileName, buffer }: BufferDust) => {
-            this.handleBuffer({
-              table,
-              fileName,
-              buffer
-            });
+          .then((dust: BufferDust) => {
+            this.log.debug(`uploding ${table} batch id:${dust.time}`);
+            this.handleBuffer(dust);
           })
           .catch((error: Error) => {
-            this.log.error(error, 'File close error');
+            this.log.error('CH write error', error);
           });
-      }, delay * i++);
+      }, Math.round(this.options.uploadInterval / tables.length) * i);
     }
   }
 
   /**
    * Uploading each-line-json to ClickHouse
    */
-  handleBuffer({ table, fileName, buffer }: BufferDust): void {
+  handleBuffer(dust: BufferDust): void {
     // Skip if no data
-    if (fileName) {
-      if (!buffer.byteLength) {
-        this.unlinkFile(fileName);
-        return;
-      }
-    }
     const queryUrl = this.url + '/?' + qs.stringify(
       Object.assign(
         {},
         this.params,
-        { query: `INSERT INTO ${table} FORMAT JSONEachRow` }
+        { query: `INSERT INTO ${dust.table} FORMAT JSONEachRow` }
       )
     );
     (async () => {
       try {
         const res = await fetch(queryUrl, {
           method: 'POST',
-          body: buffer,
+          body: dust.buffer,
           timeout: this.timeout
         });
-        const body = await res.text();
-        if (res.ok) {
-          if (fileName) {
-            await this.unlinkFile(fileName);
-          }
-          return;
+        if (!res.ok) {
+          const body = await res.text();
+          throw new Error(body);
         }
-        this.log.error({
-          body: body,
-          code: res.status
-        }, 'Wrong code');
       } catch (error) {
-        this.log.error(error, 'Error uploading to CH');
+        this.exceptWrite(dust);
+        this.log.error('CH write error', error);
       }
     })();
   }
@@ -209,5 +208,4 @@ export class CHClient {
         this.log.debug('file unlinked');
       });
   }
-
 }

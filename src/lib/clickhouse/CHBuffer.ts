@@ -1,7 +1,8 @@
-import { Deps } from "@app/AppServer";
-import { Logger } from "@app/log";
 
-function boolToInt(k: string, v: any): boolean {
+/**
+ * Custom JSON filter for ClickHouse adaptation
+ */
+function replacer(k: string, v: any): boolean {
   return typeof v === 'boolean' ? Number(v) : v
 }
 
@@ -13,13 +14,13 @@ export interface BufferDust {
   table: string;
   buffer: Buffer;
   fileName?: string;
+  time: number;
 }
 
 export class CHBuffer {
+  time: number = Number(new Date());
   options: BufferWriterOpts;
   table: string;
-  time: number = Number(new Date());
-  log: Logger;
   buffers: Array<Buffer>
 
   /**
@@ -27,8 +28,7 @@ export class CHBuffer {
    * @param param0
    * @param param1
    */
-  constructor({ table }: BufferWriterOpts, { logger }: Deps) {
-    this.log = logger.for(this)
+  constructor({ table }: BufferWriterOpts) {
     this.table = table;
     this.buffers = [];
   }
@@ -37,7 +37,7 @@ export class CHBuffer {
    * Encode record an push record to writing buffer
    */
   push(object: {}) {
-    const chunk = new Buffer(JSON.stringify(object, boolToInt) + '\n');
+    const chunk = new Buffer(JSON.stringify(object, replacer) + '\n');
     this.buffers.push(chunk);
   }
 
@@ -47,7 +47,8 @@ export class CHBuffer {
   async close(): Promise<BufferDust> {
     return {
       buffer: Buffer.concat(this.buffers),
-      table: this.table
+      table: this.table,
+      time: this.time
     };
   }
 }

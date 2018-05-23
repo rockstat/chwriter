@@ -30,7 +30,7 @@ export class StatsDMetrics implements MetricsCollector {
     return () => {
       const diff = process.hrtime(start);
       const time = Math.round(diff[0] * 1e3 + diff[1] * 1e-6);
-      this.time(metric, time);
+      this.time(metric, time, tags);
       return time;
     }
   }

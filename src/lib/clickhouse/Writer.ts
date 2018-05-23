@@ -1,7 +1,7 @@
 import { Deps } from "@app/AppServer";
 import { Logger } from "@app/log";
 import { StatsDMetrics } from "@app/lib/metrics";
-import { WriterClickHouseConfig } from "@app/types";
+import { ClickHouseConfig } from "@app/types";
 import { CHClient } from "@app/lib/clickhouse/CHClient";
 import { CHSync } from "@app/lib/clickhouse/CHSync";
 import { format as dateFormat } from 'cctz';
@@ -89,7 +89,7 @@ export class CHWriter {
   formatter: (table: string, record: { [k: string]: any; }) => any;
   log: Logger;
   stat: StatsDMetrics;
-  options: WriterClickHouseConfig;
+  options: ClickHouseConfig;
   initialized: boolean = false;
   chc: CHClient;
   chs: CHSync;

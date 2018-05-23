@@ -121,13 +121,14 @@ export type WriterCHTableDefinition = WriterCHTableCols & {
 
 export type WriterCHTables = { [key: string]: WriterCHTableDefinition };
 
-export type WriterClickHouseConfig = {
+export type ClickHouseConfig = {
   dsn: string;
   uploadInterval: number; // seconds
   sync: boolean;
   locations: { [key: string]: any };// incoming data distribotion among tables, using internal routing key
   base: WriterCHTableCols; // common fields for all tables
   tables: WriterCHTables; // tables definition
+  emergency_dir: string;
 };
 
 // ##### REDIS #####
@@ -154,10 +155,10 @@ export interface RPCConfig {
 
 // ##### CONFIG ROOT #####
 
-export type Config = {
-  name: string;
+export type RootConfig = {
   env: Envs;
-  clickhouse: WriterClickHouseConfig;
+  name: string;
+  clickhouse: ClickHouseConfig;
   redis: RedisConfig;
   log: LoggerConfig;
   metrics: {

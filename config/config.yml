@@ -21,8 +21,10 @@ redis:
 clickhouse:
   enabled: true
   dsn: <%= env.CH_DSN %>
-  uploadInterval: 2 #seconds
+  #seconds
+  uploadInterval: 5
   sync: true
+  emergency_dir: ./emergency
 
 metrics:
   statsd:
