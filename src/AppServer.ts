@@ -1,19 +1,33 @@
 import 'reflect-metadata';
+import { format as dateFormat } from 'cctz';
+import {
+  RPCAdapterRedis,
+  RPCAgnostic,
+  AgnosticRPCOptions
+} from 'agnostic-rpc';
+
 import {
   LogFactory,
   Logger
 } from '@app/log';
 import {
-  IdService,
   Configurer,
-  RPCAdapterRedis,
-  RPCAgnostic
 } from '@app/lib';
-import { StatsDMetrics } from '@app/lib/metrics/statsd';
+import { Meter } from 'meterme';
 import {
   RPCRegisterStruct,
   RPCConfig
 } from '@app/types';
+import {
+  CHClient,
+  CHSync,
+  CHWriter
+} from '@app/lib/clickhouse';
+import {
+  RedisFactory
+} from '@app/lib/redis';
+import { TheIds} from 'theids';
+
 import {
   SERVICE_BAND,
   METHOD_IAMALIVE,
@@ -21,19 +35,15 @@ import {
   METHOD_STATUS,
   BROADCAST
 } from '@app/constants';
-import { format as dateFormat } from 'cctz';
-import { CHClient } from '@app/lib/clickhouse/CHClient';
-import { CHSync } from '@app/lib/clickhouse/CHSync';
-import { CHWriter } from '@app/lib/clickhouse/Writer';
 
 /**
  * Dependency container
  */
 export class Deps {
   logger: LogFactory;
-  id: IdService;
+  id: TheIds;
   config: Configurer;
-  stat: StatsDMetrics;
+  meter: Meter;
   constructor(obj: { [k: string]: any } = {}) {
     Object.assign(this, obj);
   }
@@ -43,30 +53,47 @@ export class Deps {
  * Main application. Contains main logic
  */
 export class AppServer {
-
   logger: LogFactory;
   log: Logger;
   deps: Deps;
-  rpcConfig: RPCConfig;
+  name: string;
+  redisFactory: RedisFactory
+  rpcAdaptor: RPCAdapterRedis;
   rpc: RPCAgnostic;
   rpcRedis: RPCAdapterRedis;
   appStarted: Date = new Date();
   chw: CHWriter;
 
   constructor() {
+
     const config = new Configurer();
     const logger = new LogFactory(config);
+    const meter = new Meter(config.meter);
+    this.name = config.rpc.name;
     this.deps = new Deps({
-      id: new IdService(),
+      id: new TheIds(),
       logger,
       config,
+      meter
     });
-    this.deps.stat = new StatsDMetrics(this.deps);
     this.log = logger.for(this);
     this.log.info('Starting service');
-    this.rpcConfig = config.get('rpc');
-    this.rpc = new RPCAgnostic(this.deps);
-    this.rpcRedis = new RPCAdapterRedis(this.deps);
+    // setup RPC
+    const redisFactory = new RedisFactory(this.deps);
+    const channels = [config.rpc.name, BROADCAST];
+    const rpcOptions: AgnosticRPCOptions = Object.assign({
+      channels,
+      redisFactory,
+      logger: logger.child({ name: 'redis' }),
+      meter
+    }, config.rpc);
+    this.rpcAdaptor = new RPCAdapterRedis(rpcOptions);
+    this.rpc = new RPCAgnostic(rpcOptions);
+
+    // this.rpcConfig = config.get('rpc');
+    //
+    // this.rpcRedis = new RPCAdapterRedis(this.deps);
+
     this.chw = new CHWriter(this.deps)
     this.setup().then();
   }
@@ -76,8 +103,8 @@ export class AppServer {
    */
   async setup() {
     await this.chw.init();
-    this.rpc.setup(this.rpcRedis);
-    this.rpcRedis.setReceiver(this.rpc, 'dispatch');
+    this.rpc.setup(this.rpcAdaptor);
+    // this.rpcRedis.setReceiver(this.rpc, 'dispatch');
     this.rpc.register(BROADCAST, this.chw.write);
     this.rpc.register(METHOD_STATUS, async () => {
       const now = new Date();
@@ -91,7 +118,7 @@ export class AppServer {
       };
     });
     setTimeout(() => {
-      this.rpc.notify(SERVICE_BAND, METHOD_IAMALIVE, { name: this.rpcConfig.name })
+      this.rpc.notify(SERVICE_BAND, METHOD_IAMALIVE, { name: this.name })
     }, 500)
   }
 

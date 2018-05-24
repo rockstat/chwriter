@@ -15,11 +15,10 @@ export class RedisClient {
   client: Redis;
   started: boolean = false;
 
-  constructor(deps: Deps) {
-    const {logger, config} = deps;
-    this.log = logger.for(this)
-    this.options = config.get('redis');
-    const {host, port, db} = this.options;
+  constructor(options: RedisConfig, log: Logger) {
+    this.log = log;
+    console.log(options)
+    const { host, port, db } = options;
 
     this.log.info('Starting redis client. Server: %s:%s/%d', host, port, db);
     this.client = new Redis(this.options);

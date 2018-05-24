@@ -4,7 +4,7 @@
   "description": "Rockstat clickhouse writer service",
   "main": "dist/start.js",
   "scripts": {
-    "start": "ts-node-dev  -r 'source-map-support/register' -r 'tsconfig-paths/register' ./src/start.ts | pino",
+    "start": "ts-node-dev -r 'tsconfig-paths/register' ./src/start.ts | pino",
     "build": "rimraf dist && tsc  -r 'source-map-support/register' -p tsconfig.json",
     "prod": "node dist/start",
     "clean": "rimraf dist",
@@ -25,9 +25,9 @@
     "@types/glob": "^5.0.35",
     "@types/js-yaml": "^3.10.1",
     "@types/node": "^10.0.4",
+    "@types/lazy.js": "^0.3.29",
     "@types/pino": "^4.7.1",
     "@types/qs": "^6.5.1",
-    "@types/statsd-client": "^0.4.0",
     "pino-pretty": "^1.0.1",
     "ts-node": "^6.0.3",
     "ts-node-dev": "^1.0.0-pre.21",
@@ -36,15 +36,13 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
-    "@types/lazy.js": "^0.3.29",
+    "agnostic-rpc": "1.0.0",
     "ajv": "^6.4.0",
     "bluebird": "^3.5.1",
     "cctz": "^1.7.7",
     "dotenv": "^5.0.1",
     "ejs": "^2.5.7",
-    "flake-idgen": "^1.1.0",
     "glob": "^7.1.2",
-    "int64-buffer": "^0.1.10",
     "js-yaml": "^3.11.0",
     "lazy.js": "^0.5.1",
     "merge-options": "^1.0.0",
@@ -54,7 +52,6 @@
     "redis-fast-driver": "^2.1.0",
     "reflect-metadata": "^0.1.12",
     "source-map-support": "^0.5.5",
-    "statsd-client": "^0.4.2",
     "xxhash": "^0.2.4"
   }
 }

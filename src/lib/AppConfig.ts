@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { safeLoadAll } from 'js-yaml';
+import { MetricsOptions } from 'meterme';
 import { render as ejsRender, Options as EjsOptions } from 'ejs';
 import { sync as globSync } from 'glob';
 import * as dotenv from 'dotenv';
@@ -12,6 +13,7 @@ import {
   RootConfig,
   Envs,
   RedisConfig,
+  RPCConfig,
 } from '../types';
 import { ENV_PROD, ENV_STAGE, ENV_DEV } from '@app/constants';
 
@@ -45,9 +47,11 @@ export class Configurer {
   /**
    * Spectial getters
    */
-  get logConfig(): PinoConfig { return this.config.log.pino; }
+  get log(): PinoConfig { return this.config.log.pino; }
   get redis(): RedisConfig { return this.config.redis; }
+  get rpc(): RPCConfig { return this.config.rpc; }
   get clickhouse(): ClickHouseConfig { return this.ch; }
+  get meter(): MetricsOptions { return this.config.metrics; }
 
 
   /**

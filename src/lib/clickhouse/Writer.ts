@@ -1,6 +1,6 @@
 import { Deps } from "@app/AppServer";
 import { Logger } from "@app/log";
-import { StatsDMetrics } from "@app/lib/metrics";
+import { MeterFacade, Meter } from "meterme";
 import { ClickHouseConfig } from "@app/types";
 import { CHClient } from "@app/lib/clickhouse/CHClient";
 import { CHSync } from "@app/lib/clickhouse/CHSync";
@@ -88,7 +88,7 @@ const flatObject = (child: StructChild, nested: Set<string> | null,
 export class CHWriter {
   formatter: (table: string, record: { [k: string]: any; }) => any;
   log: Logger;
-  stat: StatsDMetrics;
+  meter: Meter;
   options: ClickHouseConfig;
   initialized: boolean = false;
   chc: CHClient;
@@ -99,9 +99,9 @@ export class CHWriter {
    * @param deps DI
    */
   constructor(deps: Deps) {
-    const { logger, stat, config } = deps;
+    const { logger, meter, config } = deps;
     this.log = logger.for(this)
-    this.stat = stat;
+    this.meter = meter;
     const chcfg = this.options = config.get('clickhouse');
     this.chc = new CHClient(deps);
     this.chs = new CHSync(chcfg, this.chc, deps);

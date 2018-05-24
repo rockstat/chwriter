@@ -27,7 +27,7 @@ export class LogFactory {
   logger: LogPino;
 
   constructor(configurer: Configurer) {
-    this.logger = new LogPino(configurer.logConfig);
+    this.logger = new LogPino(configurer.log);
   }
 
   child(options: object): Logger {
