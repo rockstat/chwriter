@@ -1,6 +1,5 @@
 import { Deps } from "@app/AppServer";
-import { Logger } from "@app/log";
-import { MeterFacade, Meter } from "meterme";
+import { Logger, MeterFacade, Meter  } from "rockmets";
 import { ClickHouseConfig } from "@app/types";
 import { CHClient } from "@app/lib/clickhouse/CHClient";
 import { CHSync } from "@app/lib/clickhouse/CHSync";
@@ -99,8 +98,8 @@ export class CHWriter {
    * @param deps DI
    */
   constructor(deps: Deps) {
-    const { logger, meter, config } = deps;
-    this.log = logger.for(this)
+    const { log, meter, config } = deps;
+    this.log = log.for(this)
     this.meter = meter;
     const chcfg = this.options = config.get('clickhouse');
     this.chc = new CHClient(deps);

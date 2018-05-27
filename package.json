@@ -24,9 +24,8 @@
     "@types/ejs": "^2.5.0",
     "@types/glob": "^5.0.35",
     "@types/js-yaml": "^3.10.1",
-    "@types/node": "^10.0.4",
     "@types/lazy.js": "^0.3.29",
-    "@types/pino": "^4.7.1",
+    "@types/node": "^10.0.4",
     "@types/qs": "^6.5.1",
     "pino-pretty": "^1.0.1",
     "ts-node": "^6.0.3",
@@ -36,7 +35,6 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
-    "agnostic-rpc": "1.0.0",
     "ajv": "^6.4.0",
     "bluebird": "^3.5.1",
     "cctz": "^1.7.7",
@@ -47,10 +45,9 @@
     "lazy.js": "^0.5.1",
     "merge-options": "^1.0.0",
     "node-fetch": "^2.1.2",
-    "pino": "^4.14.0",
     "qs": "^6.5.1",
-    "redis-fast-driver": "^2.1.0",
     "reflect-metadata": "^0.1.12",
+    "rockmets": "1.0.0",
     "source-map-support": "^0.5.5",
     "xxhash": "^0.2.4"
   }

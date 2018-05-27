@@ -3,17 +3,16 @@ import { format as dateFormat } from 'cctz';
 import {
   RPCAdapterRedis,
   RPCAgnostic,
-  AgnosticRPCOptions
-} from 'agnostic-rpc';
-
-import {
-  LogFactory,
+  AgnosticRPCOptions,
+  Meter,
+  RedisFactory,
+  TheIds,
   Logger
-} from '@app/log';
+} from 'rockmets';
+
 import {
   Configurer,
 } from '@app/lib';
-import { Meter } from 'meterme';
 import {
   RPCRegisterStruct,
   RPCConfig
@@ -23,10 +22,6 @@ import {
   CHSync,
   CHWriter
 } from '@app/lib/clickhouse';
-import {
-  RedisFactory
-} from '@app/lib/redis';
-import { TheIds} from 'theids';
 
 import {
   SERVICE_BAND,
@@ -40,7 +35,7 @@ import {
  * Dependency container
  */
 export class Deps {
-  logger: LogFactory;
+  log: Logger;
   id: TheIds;
   config: Configurer;
   meter: Meter;
@@ -53,11 +48,9 @@ export class Deps {
  * Main application. Contains main logic
  */
 export class AppServer {
-  logger: LogFactory;
   log: Logger;
   deps: Deps;
   name: string;
-  redisFactory: RedisFactory
   rpcAdaptor: RPCAdapterRedis;
   rpc: RPCAgnostic;
   rpcRedis: RPCAdapterRedis;
@@ -67,33 +60,26 @@ export class AppServer {
   constructor() {
 
     const config = new Configurer();
-    const logger = new LogFactory(config);
+    const log = new Logger(config.log);
     const meter = new Meter(config.meter);
     this.name = config.rpc.name;
     this.deps = new Deps({
       id: new TheIds(),
-      logger,
+      log,
       config,
       meter
     });
-    this.log = logger.for(this);
+    this.log = log.for(this);
     this.log.info('Starting service');
-    // setup RPC
-    const redisFactory = new RedisFactory(this.deps);
+
+    // setup Redis
+    const redisFactory = new RedisFactory({ log, meter, ...config.redis });
+
+    // Setup RPC
     const channels = [config.rpc.name, BROADCAST];
-    const rpcOptions: AgnosticRPCOptions = Object.assign({
-      channels,
-      redisFactory,
-      logger: logger.child({ name: 'redis' }),
-      meter
-    }, config.rpc);
+    const rpcOptions: AgnosticRPCOptions = { channels, redisFactory, log, meter, ...config.rpc }
     this.rpcAdaptor = new RPCAdapterRedis(rpcOptions);
     this.rpc = new RPCAgnostic(rpcOptions);
-
-    // this.rpcConfig = config.get('rpc');
-    //
-    // this.rpcRedis = new RPCAdapterRedis(this.deps);
-
     this.chw = new CHWriter(this.deps)
     this.setup().then();
   }
@@ -104,7 +90,6 @@ export class AppServer {
   async setup() {
     await this.chw.init();
     this.rpc.setup(this.rpcAdaptor);
-    // this.rpcRedis.setReceiver(this.rpc, 'dispatch');
     this.rpc.register(BROADCAST, this.chw.write);
     this.rpc.register(METHOD_STATUS, async () => {
       const now = new Date();

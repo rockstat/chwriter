@@ -3,7 +3,7 @@ import { DefaultDict, defaultDict } from '@app/lib/struct/DefaultDict';
 import * as  Lazy from 'lazy.js';
 import { WriterCHTableCols, WriterCHTableOpts, ClickHouseConfig } from '@app/types';
 import { Deps } from '@app/AppServer';
-import { Logger } from '@app/log';
+import { Logger } from 'rockmets';
 import { CHClient } from '@app/lib/clickhouse/CHClient';
 
 /**
@@ -58,8 +58,8 @@ export class CHSync {
   tablesCols: DefaultDict<{ [k: string]: string }>;
   tablesNested: DefaultDict<Set<string>>;
 
-  constructor(options: ClickHouseConfig, client: CHClient, { logger }: Deps) {
-    this.log = logger.for(this);
+  constructor(options: ClickHouseConfig, client: CHClient, { log }: Deps) {
+    this.log = log.for(this);
     this.client = client;
     this.options = Object.assign({}, options);
   }

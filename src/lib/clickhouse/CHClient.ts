@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { unlink, writeFile } from 'fs';
 import * as qs from 'qs';
 import { Deps } from '@app/AppServer';
-import { Logger } from '@app/log';
+import { Logger } from 'rockmets';
 import { parse as urlParse } from 'url';
 import { ClickHouseConfig } from '@app/types';
 import { CHBuffer, BufferDust } from '@app/lib/clickhouse/CHBuffer';
@@ -40,10 +40,10 @@ export class CHClient {
   emergency_dir: string;
 
   constructor(deps: Deps) {
-    const { logger, config } = deps;
+    const { log, config } = deps;
     const options = this.options = config.get('clickhouse');
     const { dsn } = options;
-    this.log = logger.for(this);
+    this.log = log.for(this);
     this.log.info('Starting ClickHouse client', { uploadInterval: options.uploadInterval, dsn: dsn });
     const { port, hostname, protocol, path, auth } = urlParse(dsn);
     this.db = (path || '').slice(1);

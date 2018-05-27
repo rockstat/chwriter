@@ -1,2 +1,2 @@
 export * from './AppConfig';
-export * from './redis';
+export * from './clickhouse';
