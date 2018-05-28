@@ -9,7 +9,7 @@ import {
   TheIds,
   Logger,
   AppConfig
-} from 'rockmets';
+} from 'rock-me-ts';
 
 import {
   ModuleConfig

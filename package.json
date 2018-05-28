@@ -14,40 +14,31 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/rockstat/clickhouse_writer"
+    "url": "https://github.com/rockstat/clickhouse-writer"
   },
   "author": "Dmitry Rodin <madiedinro@gmail.com>",
   "homepage": "https://rockstat.ru",
   "devDependencies": {
     "@types/bluebird": "^3.5.20",
-    "@types/dotenv": "^4.0.2",
-    "@types/ejs": "^2.5.0",
-    "@types/glob": "^5.0.35",
-    "@types/js-yaml": "^3.10.1",
     "@types/lazy.js": "^0.3.29",
-    "@types/node": "^10.0.4",
+    "@types/node": "^9.6.18",
     "@types/qs": "^6.5.1",
-    "pino-pretty": "^1.0.1",
     "ts-node": "^6.0.3",
     "ts-node-dev": "^1.0.0-pre.21",
     "tsc-watch": "^1.0.17",
     "tsconfig-paths": "^3.3.2",
-    "typescript": "^2.7.2"
+    "typescript": "^2.7.2",
+    "rimraf": "^2.6.2"
   },
   "dependencies": {
     "ajv": "^6.4.0",
     "bluebird": "^3.5.1",
     "cctz": "^1.7.7",
-    "dotenv": "^5.0.1",
-    "ejs": "^2.5.7",
-    "glob": "^7.1.2",
-    "js-yaml": "^3.11.0",
     "lazy.js": "^0.5.1",
-    "merge-options": "^1.0.0",
     "node-fetch": "^2.1.2",
     "qs": "^6.5.1",
     "reflect-metadata": "^0.1.12",
-    "rockmets": "1.0.0",
+    "rock-me-ts": "rockstat/rock-me-ts",
     "source-map-support": "^0.5.5",
     "xxhash": "^0.2.4"
   }

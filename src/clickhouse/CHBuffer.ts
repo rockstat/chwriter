@@ -1,3 +1,4 @@
+import { CHBufferWriterOpts, CHBufferDust } from '../types';
 
 /**
  * Custom JSON filter for ClickHouse adaptation
@@ -6,20 +7,9 @@ function replacer(k: string, v: any): boolean {
   return typeof v === 'boolean' ? Number(v) : v
 }
 
-export interface BufferWriterOpts {
-  table: string;
-}
-
-export interface BufferDust {
-  table: string;
-  buffer: Buffer;
-  fileName?: string;
-  time: number;
-}
-
 export class CHBuffer {
   time: number = Number(new Date());
-  options: BufferWriterOpts;
+  options: CHBufferWriterOpts;
   table: string;
   buffers: Array<Buffer>
 
@@ -28,7 +18,7 @@ export class CHBuffer {
    * @param param0
    * @param param1
    */
-  constructor({ table }: BufferWriterOpts) {
+  constructor({ table }: CHBufferWriterOpts) {
     this.table = table;
     this.buffers = [];
   }
@@ -44,7 +34,7 @@ export class CHBuffer {
   /**
    * Init closing procedure before uploading to ClickHouse
    */
-  async close(): Promise<BufferDust> {
+  async close(): Promise<CHBufferDust> {
     return {
       buffer: Buffer.concat(this.buffers),
       table: this.table,

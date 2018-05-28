@@ -7,7 +7,7 @@
     "experimentalDecorators": true,
     "strictNullChecks": true,
     "sourceMap": true,
-    "inlineSourceMap": true,
+    "declaration": true,
     "pretty": true,
     "allowUnreachableCode": true,
     "noFallthroughCasesInSwitch": false,
@@ -17,7 +17,7 @@
     "outDir": "./dist/",
     "typeRoots": [
       "node_modules/@types",
-      "node_modules/rockmets/@types",
+      "node_modules/rock-me-ts/@types",
       "@types"
     ],
     "baseUrl": "./",

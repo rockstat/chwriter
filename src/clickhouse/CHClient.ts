@@ -1,27 +1,17 @@
-import { promisify } from 'bluebird';
+import * as Bluebird from 'bluebird';
 import fetch from 'node-fetch';
 import { unlink, writeFile } from 'fs';
 import * as qs from 'qs';
 import { Deps } from '@app/AppServer';
-import { Logger } from 'rockmets';
+import { Logger } from 'rock-me-ts';
 import { parse as urlParse } from 'url';
-import { ClickHouseConfig } from '@app/types';
-import { CHBuffer, BufferDust } from './CHBuffer';
+import { CHConfig } from '@app/types';
+import { CHBufferDust, CHQueryParams, CHWritersDict } from '../types';
+import { CHBuffer } from './CHBuffer';
 import { METHOD_POST } from '@app/constants';
 
-type WritersDict = {
-  [k: string]: any
-};
-
-interface CHQueryParams {
-  user?: string;
-  password?: string;
-  database: string;
-  query?: string;
-}
-
-const unlinkAsync = promisify(unlink);
-const writeFileAsync = promisify(writeFile);
+const unlinkAsync = Bluebird.promisify(unlink);
+const writeFileAsync = Bluebird.promisify(writeFile);
 
 /**
  * Base ClickHouse lib.
@@ -33,9 +23,9 @@ export class CHClient {
   log: Logger;
   url: string;
   db: string;
-  options: ClickHouseConfig;
+  options: CHConfig;
   params: CHQueryParams;
-  writers: WritersDict = {};
+  writers: CHWritersDict = {};
   timeout: number = 5000;
   emergency_dir: string;
 
@@ -138,7 +128,7 @@ export class CHClient {
   /**
    * Emergincy write in file
    */
-  exceptWrite(dust: BufferDust) {
+  exceptWrite(dust: CHBufferDust) {
     const fn = `${this.options.emergency_dir}/${dust.time}.json`;
     writeFileAsync(fn, dust.buffer)
       .then(_ => this.log.info(`saved emergency file: ${fn}`))
@@ -157,7 +147,7 @@ export class CHClient {
         const writer = this.writers[table];
         this.writers[table] = undefined;
         writer.close()
-          .then((dust: BufferDust) => {
+          .then((dust: CHBufferDust) => {
             this.log.debug(`uploding ${table} batch id:${dust.time}`);
             this.handleBuffer(dust);
           })
@@ -171,7 +161,7 @@ export class CHClient {
   /**
    * Uploading each-line-json to ClickHouse
    */
-  handleBuffer(dust: BufferDust): void {
+  handleBuffer(dust: CHBufferDust): void {
     // Skip if no data
     const queryUrl = this.url + '/?' + qs.stringify(
       Object.assign(

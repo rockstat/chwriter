@@ -1,12 +1,12 @@
-import {ClickHouseConfig} from '../types'
+import {CHConfig} from '../types'
 
 
-export class CHConfig {
+export class CHConfigHandler {
   /**
    * Handling ClickHouse table extendability via _options: extend: basename
    * @param config ClickHouse configuration
    */
-  static handleExtend(config: ClickHouseConfig): ClickHouseConfig {
+  static extend(config: CHConfig): CHConfig {
     const { base, tables, ...rest } = config;
     for (const table of Object.keys(tables)) {
       const definition = tables[table];

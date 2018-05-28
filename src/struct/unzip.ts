@@ -1,5 +1,5 @@
-type ZipFilter<T> = (x: any) => T;
-type ZipObject<V> = { [k: string]: V };
+export type ZipFilter<T> = (x: any) => T;
+export type ZipObject<V> = { [k: string]: V };
 /**
  * Function implements zip algorithm with filtration
  */

@@ -1,9 +1,9 @@
 
 import { DefaultDict, defaultDict } from '@app/struct/DefaultDict';
 import * as  Lazy from 'lazy.js';
-import { WriterCHTableCols, WriterCHTableOpts, ClickHouseConfig } from '@app/types';
+import { CHTableCols, CHTableOptions, CHConfig } from '@app/types';
 import { Deps } from '@app/AppServer';
-import { Logger } from 'rockmets';
+import { Logger } from 'rock-me-ts';
 import { CHClient } from './CHClient';
 
 /**
@@ -12,7 +12,7 @@ import { CHClient } from './CHClient';
  * @param cols columns dict
  * @param tableOptions table options for clickhouse
  */
-const showCreateTable = (name: string, cols: WriterCHTableCols, tableOptions: WriterCHTableOpts) => {
+const showCreateTable = (name: string, cols: CHTableCols, tableOptions: CHTableOptions) => {
   let query = `CREATE TABLE ${name} (`;
   query += Object.keys(cols)
     .filter(c => !!cols[c])
@@ -28,7 +28,7 @@ const showCreateTable = (name: string, cols: WriterCHTableCols, tableOptions: Wr
  * @param cols cols
  * @param table_options clickhouse options
  */
-const showAlterTable = (name: string, cols: WriterCHTableCols, table_options: WriterCHTableOpts) => {
+const showAlterTable = (name: string, cols: CHTableCols, table_options: CHTableOptions) => {
   let query = `ALTER TABLE ${name} `;
   query += Object.keys(cols)
     .filter(c => !!cols[c])
@@ -54,11 +54,11 @@ const newCols = (schemaCols: Array<string>, currentCols: Array<string>) => {
 export class CHSync {
   log: Logger;
   client: CHClient;
-  options: ClickHouseConfig;
+  options: CHConfig;
   tablesCols: DefaultDict<{ [k: string]: string }>;
   tablesNested: DefaultDict<Set<string>>;
 
-  constructor(options: ClickHouseConfig, client: CHClient, { log }: Deps) {
+  constructor(options: CHConfig, client: CHClient, { log }: Deps) {
     this.log = log.for(this);
     this.client = client;
     this.options = Object.assign({}, options);
