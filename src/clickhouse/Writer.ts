@@ -1,8 +1,9 @@
 import { Deps } from "@app/AppServer";
-import { Logger, MeterFacade, Meter  } from "rockmets";
+import { Logger, MeterFacade, Meter } from "rockmets";
 import { ClickHouseConfig } from "@app/types";
-import { CHClient } from "@app/lib/clickhouse/CHClient";
-import { CHSync } from "@app/lib/clickhouse/CHSync";
+import { CHClient } from "./CHClient";
+import { CHSync } from "./CHSync";
+import { CHConfig } from "./CHConfig";
 import { format as dateFormat } from 'cctz';
 import { unzip } from '../struct/unzip';
 
@@ -101,7 +102,7 @@ export class CHWriter {
     const { log, meter, config } = deps;
     this.log = log.for(this)
     this.meter = meter;
-    const chcfg = this.options = config.get('clickhouse');
+    const chcfg = this.options = CHConfig.handleExtend(config.get('clickhouse'));
     this.chc = new CHClient(deps);
     this.chs = new CHSync(chcfg, this.chc, deps);
     // main firmatter

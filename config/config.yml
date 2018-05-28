@@ -1,5 +1,5 @@
 ---
-name: Rockstat clickhouse writer
+title: Rockstat clickhouse writer
 rpc:
   name: clickhouse_writer
   listen_all: true

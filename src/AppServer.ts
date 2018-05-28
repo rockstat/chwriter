@@ -7,21 +7,16 @@ import {
   Meter,
   RedisFactory,
   TheIds,
-  Logger
+  Logger,
+  AppConfig
 } from 'rockmets';
 
 import {
-  Configurer,
-} from '@app/lib';
-import {
-  RPCRegisterStruct,
-  RPCConfig
+  ModuleConfig
 } from '@app/types';
 import {
-  CHClient,
-  CHSync,
   CHWriter
-} from '@app/lib/clickhouse';
+} from '@app/clickhouse';
 
 import {
   SERVICE_BAND,
@@ -37,7 +32,7 @@ import {
 export class Deps {
   log: Logger;
   id: TheIds;
-  config: Configurer;
+  config: AppConfig<ModuleConfig>;
   meter: Meter;
   constructor(obj: { [k: string]: any } = {}) {
     Object.assign(this, obj);
@@ -59,7 +54,7 @@ export class AppServer {
 
   constructor() {
 
-    const config = new Configurer();
+    const config = new AppConfig<ModuleConfig>();
     const log = new Logger(config.log);
     const meter = new Meter(config.meter);
     this.name = config.rpc.name;
@@ -74,7 +69,6 @@ export class AppServer {
 
     // setup Redis
     const redisFactory = new RedisFactory({ log, meter, ...config.redis });
-
     // Setup RPC
     const channels = [config.rpc.name, BROADCAST];
     const rpcOptions: AgnosticRPCOptions = { channels, redisFactory, log, meter, ...config.rpc }
@@ -92,19 +86,20 @@ export class AppServer {
     this.rpc.setup(this.rpcAdaptor);
     this.rpc.register(BROADCAST, this.chw.write);
     this.rpc.register(METHOD_STATUS, async () => {
-      const now = new Date();
-      const appUptime = Number(now) - Number(this.appStarted);
+      const appUptime = Number(new Date()) - Number(this.appStarted);
       return {
-        status: "i'm ok!",
+        status: "running",
         app_started: Number(this.appStarted),
         app_uptime: appUptime,
         app_uptime_h: dateFormat('%X', Math.round(appUptime / 1000)),
         methods: []
       };
     });
-    setTimeout(() => {
+    const aliver = () => {
       this.rpc.notify(SERVICE_BAND, METHOD_IAMALIVE, { name: this.name })
-    }, 500)
+    };
+    setTimeout(aliver, 500);
+    setInterval(aliver, 60000);
   }
 
   /**

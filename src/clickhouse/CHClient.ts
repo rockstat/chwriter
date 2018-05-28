@@ -6,8 +6,8 @@ import { Deps } from '@app/AppServer';
 import { Logger } from 'rockmets';
 import { parse as urlParse } from 'url';
 import { ClickHouseConfig } from '@app/types';
-import { CHBuffer, BufferDust } from '@app/lib/clickhouse/CHBuffer';
-import { METHOD_POST, METHOD_OPTIONS } from '@app/constants';
+import { CHBuffer, BufferDust } from './CHBuffer';
+import { METHOD_POST } from '@app/constants';
 
 type WritersDict = {
   [k: string]: any

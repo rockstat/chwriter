@@ -1,10 +1,10 @@
 
-import { DefaultDict, defaultDict } from '@app/lib/struct/DefaultDict';
+import { DefaultDict, defaultDict } from '@app/struct/DefaultDict';
 import * as  Lazy from 'lazy.js';
 import { WriterCHTableCols, WriterCHTableOpts, ClickHouseConfig } from '@app/types';
 import { Deps } from '@app/AppServer';
 import { Logger } from 'rockmets';
-import { CHClient } from '@app/lib/clickhouse/CHClient';
+import { CHClient } from './CHClient';
 
 /**
  * Make create table SQL query
