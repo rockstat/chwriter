@@ -1,9 +1,9 @@
 export type ZipFilter<T> = (x: any) => T;
 export type ZipObject<V> = { [k: string]: V };
+
 /**
  * Function implements zip algorithm with filtration
  */
-
 export function unzip<V>(obj: ZipObject<V>, keyFilter: ZipFilter<string>, valFilter: ZipFilter<V>) {
   const key = [];
   const value = [];

@@ -8,7 +8,8 @@ import {
   RedisFactory,
   TheIds,
   Logger,
-  AppConfig
+  AppConfig,
+  RPCAdapter
 } from 'rock-me-ts';
 
 import {
@@ -19,7 +20,7 @@ import {
 } from '@app/clickhouse';
 
 import {
-  SERVICE_BAND,
+  SERVICE_DIRECTOR,
   METHOD_IAMALIVE,
   SERVICE_KERNEL,
   METHOD_STATUS,
@@ -34,6 +35,9 @@ export class Deps {
   id: TheIds;
   config: AppConfig<ModuleConfig>;
   meter: Meter;
+  rpc: RPCAgnostic;
+  rpcAdaptor: RPCAdapter;
+  redisFactory: RedisFactory;
   constructor(obj: { [k: string]: any } = {}) {
     Object.assign(this, obj);
   }
@@ -46,9 +50,8 @@ export class AppServer {
   log: Logger;
   deps: Deps;
   name: string;
-  rpcAdaptor: RPCAdapterRedis;
+  rpcAdaptor: RPCAdapter;
   rpc: RPCAgnostic;
-  rpcRedis: RPCAdapterRedis;
   appStarted: Date = new Date();
   chw: CHWriter;
 
@@ -68,13 +71,14 @@ export class AppServer {
     this.log.info('Starting service');
 
     // setup Redis
-    const redisFactory = new RedisFactory({ log, meter, ...config.redis });
+    const redisFactory = this.deps.redisFactory = new RedisFactory({ log, meter, ...config.redis });
     // Setup RPC
     const channels = [config.rpc.name, BROADCAST];
     const rpcOptions: AgnosticRPCOptions = { channels, redisFactory, log, meter, ...config.rpc }
-    this.rpcAdaptor = new RPCAdapterRedis(rpcOptions);
-    this.rpc = new RPCAgnostic(rpcOptions);
-    this.chw = new CHWriter(this.deps)
+    this.rpcAdaptor = this.deps.rpcAdaptor = new RPCAdapterRedis(rpcOptions);
+    this.rpc = this.deps.rpc = new RPCAgnostic(rpcOptions);
+    this.rpc.setup(this.rpcAdaptor);
+    this.chw = new CHWriter(this.deps);
     this.setup().then();
   }
 
@@ -83,7 +87,6 @@ export class AppServer {
    */
   async setup() {
     await this.chw.init();
-    this.rpc.setup(this.rpcAdaptor);
     this.rpc.register(BROADCAST, this.chw.write);
     this.rpc.register(METHOD_STATUS, async () => {
       const appUptime = Number(new Date()) - Number(this.appStarted);
@@ -96,7 +99,7 @@ export class AppServer {
       };
     });
     const aliver = () => {
-      this.rpc.notify(SERVICE_BAND, METHOD_IAMALIVE, { name: this.name })
+      this.rpc.notify(SERVICE_DIRECTOR, METHOD_IAMALIVE, { name: this.name })
     };
     setTimeout(aliver, 500);
     setInterval(aliver, 60000);
