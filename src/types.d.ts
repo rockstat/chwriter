@@ -16,7 +16,7 @@ export type CHConfig = {
   dsn: string;
   uploadInterval: number; // seconds
   sync: boolean;
-  locations: { [key: string]: any };// incoming data distribotion among tables, using internal routing key
+  destination: { [key: string]: any };// incoming data distribotion among tables, using internal routing key
   base: CHTableCols; // common fields for all tables
   tables: CHTablesConfig; // tables definition
   emergency_dir: string;

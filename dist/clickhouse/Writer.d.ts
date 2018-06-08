@@ -16,6 +16,8 @@ export declare class CHWriter {
     initialized: boolean;
     chc: CHClient;
     chs: CHSync;
+    copyProps: string[];
+    dest: CHConfig['destination'];
     /**
      *
      * @param deps DI

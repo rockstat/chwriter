@@ -33,12 +33,13 @@ class AppServer {
         this.log = log.for(this);
         this.log.info('Starting service');
         // setup Redis
-        const redisFactory = new rock_me_ts_1.RedisFactory({ log, meter, ...config.redis });
+        const redisFactory = this.deps.redisFactory = new rock_me_ts_1.RedisFactory({ log, meter, ...config.redis });
         // Setup RPC
         const channels = [config.rpc.name, constants_1.BROADCAST];
         const rpcOptions = { channels, redisFactory, log, meter, ...config.rpc };
-        this.rpcAdaptor = new rock_me_ts_1.RPCAdapterRedis(rpcOptions);
-        this.rpc = new rock_me_ts_1.RPCAgnostic(rpcOptions);
+        this.rpcAdaptor = this.deps.rpcAdaptor = new rock_me_ts_1.RPCAdapterRedis(rpcOptions);
+        this.rpc = this.deps.rpc = new rock_me_ts_1.RPCAgnostic(rpcOptions);
+        this.rpc.setup(this.rpcAdaptor);
         this.chw = new clickhouse_1.CHWriter(this.deps);
         this.setup().then();
     }
@@ -47,7 +48,6 @@ class AppServer {
      */
     async setup() {
         await this.chw.init();
-        this.rpc.setup(this.rpcAdaptor);
         this.rpc.register(constants_1.BROADCAST, this.chw.write);
         this.rpc.register(constants_1.METHOD_STATUS, async () => {
             const appUptime = Number(new Date()) - Number(this.appStarted);
@@ -60,7 +60,7 @@ class AppServer {
             };
         });
         const aliver = () => {
-            this.rpc.notify(constants_1.SERVICE_BAND, constants_1.METHOD_IAMALIVE, { name: this.name });
+            this.rpc.notify(constants_1.SERVICE_DIRECTOR, constants_1.METHOD_IAMALIVE, { name: this.name });
         };
         setTimeout(aliver, 500);
         setInterval(aliver, 60000);
@@ -70,6 +70,7 @@ class AppServer {
      */
     onStop() {
         this.log.info('Stopping...');
+        process.exit(0);
     }
     /**
      * Sinals listening
@@ -78,9 +79,9 @@ class AppServer {
         // Handles normal process termination.
         process.on('exit', () => this.onStop());
         // Handles `Ctrl+C`.
-        process.on('SIGINT', () => process.exit(0));
+        process.on('SIGINT', () => this.onStop());
         // Handles `kill pid`.
-        process.on('SIGTERM', () => process.exit(0));
+        process.on('SIGTERM', () => this.onStop());
     }
 }
 exports.AppServer = AppServer;

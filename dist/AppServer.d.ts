@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { RPCAdapterRedis, RPCAgnostic, Meter, TheIds, Logger, AppConfig } from 'rock-me-ts';
+import { RPCAgnostic, Meter, RedisFactory, TheIds, Logger, AppConfig, RPCAdapter } from 'rock-me-ts';
 import { ModuleConfig } from '@app/types';
 import { CHWriter } from '@app/clickhouse';
 /**
@@ -10,6 +10,9 @@ export declare class Deps {
     id: TheIds;
     config: AppConfig<ModuleConfig>;
     meter: Meter;
+    rpc: RPCAgnostic;
+    rpcAdaptor: RPCAdapter;
+    redisFactory: RedisFactory;
     constructor(obj?: {
         [k: string]: any;
     });
@@ -21,9 +24,8 @@ export declare class AppServer {
     log: Logger;
     deps: Deps;
     name: string;
-    rpcAdaptor: RPCAdapterRedis;
+    rpcAdaptor: RPCAdapter;
     rpc: RPCAgnostic;
-    rpcRedis: RPCAdapterRedis;
     appStarted: Date;
     chw: CHWriter;
     constructor();

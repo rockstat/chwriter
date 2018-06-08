@@ -1,4 +1,4 @@
-export declare const SERVICE_BAND = "band";
+export declare const SERVICE_DIRECTOR = "director";
 export declare const SERVICE_KERNEL = "kernel";
 export declare const SERVICE_TRACK = "track";
 export declare const METHOD_IAMALIVE = "__iamalive";

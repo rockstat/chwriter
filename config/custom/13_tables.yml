@@ -1,0 +1,11 @@
+---
+clickhouse:
+  destination:
+    checkid/result: id_checks
+
+  tables:
+    id_checks:
+      uid: UInt64
+      data_gaId: String
+      _options:
+        extend: webhooks

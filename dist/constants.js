@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SERVICE_BAND = 'band';
+exports.SERVICE_DIRECTOR = 'director';
 exports.SERVICE_KERNEL = 'kernel';
 exports.SERVICE_TRACK = 'track';
 exports.METHOD_IAMALIVE = '__iamalive';

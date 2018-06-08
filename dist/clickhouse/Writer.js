@@ -9,7 +9,7 @@ const unzip_1 = require("../struct/unzip");
  * Check is Object
  */
 const isObject = (o) => {
-    (!!o && typeof o === 'object' && Object.prototype.toString.call(o) === '[object Object]');
+    return (!!o && typeof o === 'object' && Object.prototype.toString.call(o) === '[object Object]');
 };
 // Stub
 const emptySet = new Set();
@@ -53,7 +53,7 @@ const flatObject = (child, nested, cols, path = [], separator = '_', noCheck = f
                 acc[itemPath] = val;
             }
             else {
-                // console.warn(`!! not found path:${path.join('.')}, key:${key}, val:${val}`);
+                console.warn(`!! not found path:${path.join('.')}.${key}, val:{val}`);
             }
         }
     });
@@ -75,23 +75,41 @@ class CHWriter {
         this.write = (msg) => {
             const { time, ...rest } = msg;
             const unix = Math.round(time / 1000);
-            const key = msg.name.toLowerCase().replace(/\s/g, '_');
-            const table = this.options.locations[rest.channel][key] || this.options.locations[rest.channel].default;
-            try {
-                rest.date = cctz_1.format('%F', unix);
-                rest.dateTime = cctz_1.format('%F %X', unix);
-                rest.timestamp = time;
-                const row = this.formatter(table, rest);
-                this.chc.getWriter(table).push(row);
-            }
-            catch (error) {
-                console.error(`strange error`, error);
+            if ('service' in rest && 'name' in rest) {
+                const nameKey = msg.name.toLowerCase().replace(/\s/g, '_');
+                const table = this.dest[`${rest.service}/${nameKey}`]
+                    || this.dest[`${rest.service}/default`]
+                    || this.dest[`other`];
+                if ('data' in rest && isObject(rest.data)) {
+                    const data = rest.data;
+                    for (let prop of this.copyProps) {
+                        if (rest[prop] !== undefined) {
+                            data[prop] = rest[prop];
+                        }
+                    }
+                    try {
+                        data.date = cctz_1.format('%F', unix);
+                        data.dateTime = cctz_1.format('%F %X', unix);
+                        data.timestamp = time;
+                        const row = this.formatter(table, data);
+                        this.chc.getWriter(table).push(row);
+                    }
+                    catch (error) {
+                        console.error(`writer strange error`, error);
+                    }
+                }
+                else {
+                    this.log.warn('no data');
+                    console.log(isObject(rest.data), 'data' in rest);
+                }
             }
         };
         const { log, meter, config } = deps;
         this.log = log.for(this);
         this.meter = meter;
+        this.copyProps = ['channel', 'uid', 'name', 'service', 'projectId'];
         const chcfg = this.options = CHConfig_1.CHConfigHandler.extend(config.get('clickhouse'));
+        this.dest = this.options.destination;
         this.chc = new CHClient_1.CHClient(deps);
         this.chs = new CHSync_1.CHSync(chcfg, this.chc, deps);
         // main firmatter

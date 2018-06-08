@@ -3,48 +3,36 @@ clickhouse:
 
   # data location
   # it mean in which table write event
-  locations:
-    track:
-      default: events_v2
-      activity: activity
-      scroll: activity
-    webhook:
-      default: webhooks_v2
-      test/test: wh_test_test
-    pixel:
-      default: events_v2
-      checkid: id_checks
+  destination:
+    track/default: events
+    track/activity: activity
+    track/scroll: activity
+    other: other
 
   # common tables columnts
   # all tables by default implements this cols
   base:
     id: UInt64
+    uid: UInt64
     date: Date
     dateTime: DateTime
     timestamp: UInt64
     channel: Enum8('' = 0, 'other' = 1, 'track' = 5, 'webhook' = 6, 'pixel' = 7, 'redir' = 8, 'ws' = 9, 'r1' = 33 , 'r2' = 34, 'r3' = 35)
     projectId: UInt32
     name: String
+    service: String
+
 
   # tables structure
   # common tables structrute. Can be omited by custom config
   tables:
-    webhooks_v2:
+    webhooks:
       service: String
-      action: String
-      remote_ip: String
       data.key: Array(String)
       data.value: Array(String)
       _options:
-        engine: MergeTree(date, (service, action, date), 8192)
-    id_checks:
-      uid: UInt64
-      data_gaId: String
-      data.key: Array(String)
-      data.value: Array(String)
-      _options:
-        engine: MergeTree(date, (uid, date), 8192)
-    events_v2:
+        engine: MergeTree(date, (service, name, date), 8192)
+    events:
       uid: UInt64
       ip: String
       userAgent: String
@@ -80,8 +68,8 @@ clickhouse:
       session_start: UInt64
       session_refHost: String
       lib_name: String
-      lib_libver: UInt32
-      lib_snippet: UInt32
+      lib_lv: UInt32
+      lib_sv: UInt32
       client_tz: String
       client_ts: UInt64
       client_tzOffset: Int32
@@ -148,4 +136,4 @@ clickhouse:
 
     activity:
       _options:
-        extend: events_v2
+        extend: events

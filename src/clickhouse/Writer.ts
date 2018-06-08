@@ -6,12 +6,13 @@ import { CHSync } from "./CHSync";
 import { CHConfigHandler } from "./CHConfig";
 import { format as dateFormat } from 'cctz';
 import { unzip } from '../struct/unzip';
+import { pick } from '../helpers';
 
 /**
  * Check is Object
  */
 const isObject = (o: any) => {
-  (!!o && typeof o === 'object' && Object.prototype.toString.call(o) === '[object Object]')
+  return (!!o && typeof o === 'object' && Object.prototype.toString.call(o) === '[object Object]')
 };
 // Stub
 const emptySet = new Set();
@@ -72,7 +73,7 @@ const flatObject = (child: StructChild, nested: Set<string> | null,
           acc[itemPath] = val;
         }
         else {
-          // console.warn(`!! not found path:${path.join('.')}, key:${key}, val:${val}`);
+          console.warn(`!! not found path:${path.join('.')}.${key}, val:{val}`);
         }
       }
     });
@@ -93,7 +94,8 @@ export class CHWriter {
   initialized: boolean = false;
   chc: CHClient;
   chs: CHSync;
-
+  copyProps: string[];
+  dest: CHConfig['destination']
   /**
    *
    * @param deps DI
@@ -102,7 +104,9 @@ export class CHWriter {
     const { log, meter, config } = deps;
     this.log = log.for(this)
     this.meter = meter;
+    this.copyProps = ['channel', 'uid', 'name', 'service', 'projectId']
     const chcfg = this.options = CHConfigHandler.extend(config.get('clickhouse'));
+    this.dest = this.options.destination;
     this.chc = new CHClient(deps);
     this.chs = new CHSync(chcfg, this.chc, deps);
     // main firmatter
@@ -139,16 +143,32 @@ export class CHWriter {
   write = (msg: CHRecord) => {
     const { time, ...rest } = msg;
     const unix = Math.round(time / 1000);
-    const key = msg.name.toLowerCase().replace(/\s/g, '_');
-    const table = this.options.locations[rest.channel][key] || this.options.locations[rest.channel].default;
-    try {
-      rest.date = dateFormat('%F', unix);
-      rest.dateTime = dateFormat('%F %X', unix);
-      rest.timestamp = time;
-      const row = this.formatter(table, rest);
-      this.chc.getWriter(table).push(row);
-    } catch (error) {
-      console.error(`strange error`, error);
+    if ('service' in rest && 'name' in rest) {
+      const nameKey = msg.name.toLowerCase().replace(/\s/g, '_');
+      const table = this.dest[`${rest.service}/${nameKey}`]
+        || this.dest[`${rest.service}/default`]
+        || this.dest[`other`];
+
+      if ('data' in rest && isObject(rest.data)) {
+        const data = rest.data;
+        for (let prop of this.copyProps) {
+          if (rest[prop] !== undefined) {
+            data[prop] = rest[prop];
+          }
+        }
+        try {
+          data.date = dateFormat('%F', unix);
+          data.dateTime = dateFormat('%F %X', unix);
+          data.timestamp = time;
+          const row = this.formatter(table, data);
+          this.chc.getWriter(table).push(row);
+        } catch (error) {
+          console.error(`writer strange error`, error);
+        }
+      } else {
+        this.log.warn('no data');
+        console.log(isObject(rest.data), 'data' in rest)
+      }
     }
   }
 }

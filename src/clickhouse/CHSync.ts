@@ -112,8 +112,8 @@ export class CHSync {
       );
       // creating table
       if (!exists) {
-        this.log.info(`Creating table ${table}`);
         const query = showCreateTable(table, schemaCols, _options);
+        this.log.info(`Creating table ${table}: ${query}`);
         await this.client.execute(query);
       }
       // calculating difference and apply changes
