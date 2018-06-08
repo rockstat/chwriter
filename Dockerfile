@@ -16,4 +16,4 @@ RUN yarn global add pino
 COPY . .
 RUN ln -nsf ../dist ./node_modules/@app
 
-CMD [ "node", "dist/start.js" ]
+CMD [ "node", "." ]
