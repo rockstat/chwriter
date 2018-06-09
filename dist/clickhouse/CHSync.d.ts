@@ -14,7 +14,7 @@ export declare class CHSync {
         [k: string]: string;
     }>;
     tablesNested: DefaultDict<Set<string>>;
-    constructor(options: CHConfig, client: CHClient, {log}: Deps);
+    constructor(options: CHConfig, client: CHClient, { log }: Deps);
     discover(): Promise<void>;
     /**
      * Run syncronization procedure

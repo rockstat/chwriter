@@ -23,12 +23,12 @@
     "@types/lazy.js": "^0.3.29",
     "@types/node": "^9.6.18",
     "@types/qs": "^6.5.1",
+    "rimraf": "^2.6.2",
     "ts-node": "^6.0.3",
     "ts-node-dev": "^1.0.0-pre.21",
     "tsc-watch": "^1.0.17",
     "tsconfig-paths": "^3.3.2",
-    "typescript": "^2.7.2",
-    "rimraf": "^2.6.2"
+    "typescript": "^2.7.2"
   },
   "dependencies": {
     "ajv": "^6.4.0",
@@ -38,7 +38,7 @@
     "node-fetch": "^2.1.2",
     "qs": "^6.5.1",
     "reflect-metadata": "^0.1.12",
-    "rock-me-ts": "rockstat/rock-me-ts",
+    "rock-me-ts": "git+https://github.com/rockstat/rock-me-ts.git",
     "source-map-support": "^0.5.5",
     "xxhash": "^0.2.4"
   }

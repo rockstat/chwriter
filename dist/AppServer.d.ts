@@ -36,10 +36,10 @@ export declare class AppServer {
     /**
      * Graceful stot
      */
-    private onStop();
+    private onStop;
     /**
      * Sinals listening
      */
-    private attachSignals();
+    private attachSignals;
 }
 export declare const appServer: AppServer;

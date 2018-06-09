@@ -2,9 +2,9 @@ import { RPCConfig, StatsDUDPConfig, LoggerConfig, RedisConfig, MeterConfig } fr
 
 // CH Configuration
 
-type CHTableOptionsKeys = "engine" | "extend";
-type CHTableOptions = { [key in CHTableOptionsKeys]: string };
-type CHTableCols = { [key: string]: any };
+export type CHTableOptionsKeys = "engine" | "extend";
+export type CHTableOptions = { [key in CHTableOptionsKeys]: string };
+export type CHTableCols = { [key: string]: any };
 
 export type CHTableDefinition = {
   _options: CHTableOptions;

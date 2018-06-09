@@ -3,6 +3,9 @@ import { Logger, Meter } from "rock-me-ts";
 import { CHConfig } from "@app/types";
 import { CHClient } from "./CHClient";
 import { CHSync } from "./CHSync";
+declare type CHRecord = {
+    [k: string]: any;
+};
 /**
  * Main writer class. Runs other nessesary components
  */
@@ -31,7 +34,6 @@ export declare class CHWriter {
     /**
      * Main writer
      */
-    write: (msg: {
-        [k: string]: any;
-    }) => void;
+    write: (msg: CHRecord) => void;
 }
+export {};

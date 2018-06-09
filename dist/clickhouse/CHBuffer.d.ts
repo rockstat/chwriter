@@ -10,7 +10,7 @@ export declare class CHBuffer {
      * @param param0
      * @param param1
      */
-    constructor({table}: CHBufferWriterOpts);
+    constructor({ table }: CHBufferWriterOpts);
     /**
      * Encode record an push record to writing buffer
      */
