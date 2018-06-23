@@ -159,9 +159,9 @@ clickhouse:
       uaparser_is_mob: Int8
       uaparser_is_pc: Int8
       uaparser_browser_family: String
-      uaparser_browser_version: Array(UInt16)
+      uaparser_browser_version: Array(Int16)
       uaparser_os_family: String
-      uaparser_os_version: Array(UInt16)
+      uaparser_os_version: Array(Int16)
       uaparser_device_family: String
       uaparser_device_brand: String
       uaparser_device_model: String
