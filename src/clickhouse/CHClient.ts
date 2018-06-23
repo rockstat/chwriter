@@ -171,19 +171,20 @@ export class CHClient {
       )
     );
     (async () => {
+      let res;
       try {
-        const res = await fetch(queryUrl, {
+        res = await fetch(queryUrl, {
           method: 'POST',
           body: dust.buffer,
           timeout: this.timeout
         });
         if (!res.ok) {
           const body = await res.text();
-          throw new Error(body);
+          throw new Error(`body: ${body}`);
         }
       } catch (error) {
+        this.log.error(`CH write error: ${error.message}`, error, res);
         this.exceptWrite(dust);
-        this.log.error('CH write error', error);
       }
     })();
   }

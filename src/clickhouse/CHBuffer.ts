@@ -3,7 +3,8 @@ import { CHBufferWriterOpts, CHBufferDust } from '../types';
 /**
  * Custom JSON filter for ClickHouse adaptation
  */
-function replacer(k: string, v: any): boolean {
+function replacer(k: string, v: any): any {
+  if(v===null) return;
   return typeof v === 'boolean' ? Number(v) : v
 }
 

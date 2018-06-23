@@ -73,7 +73,7 @@ const flatObject = (child: StructChild, nested: Set<string> | null,
           acc[itemPath] = val;
         }
         else {
-          console.warn(`!! not found path:${path.join('.')}.${key}, val:{val}`);
+          console.warn(`!! not found path:${path.join('_')}_${key}, val:{val}`);
         }
       }
     });
@@ -104,7 +104,7 @@ export class CHWriter {
     const { log, meter, config } = deps;
     this.log = log.for(this)
     this.meter = meter;
-    this.copyProps = ['channel', 'uid', 'name', 'service', 'projectId']
+    this.copyProps = ['channel', 'uid', 'name', 'service', 'projectId', 'td']
     const chcfg = this.options = CHConfigHandler.extend(config.get('clickhouse'));
     this.dest = this.options.destination;
     this.chc = new CHClient(deps);

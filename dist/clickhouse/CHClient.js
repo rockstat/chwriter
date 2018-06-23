@@ -146,20 +146,21 @@ class CHClient {
         // Skip if no data
         const queryUrl = this.url + '/?' + qs.stringify(Object.assign({}, this.params, { query: `INSERT INTO ${dust.table} FORMAT JSONEachRow` }));
         (async () => {
+            let res;
             try {
-                const res = await node_fetch_1.default(queryUrl, {
+                res = await node_fetch_1.default(queryUrl, {
                     method: 'POST',
                     body: dust.buffer,
                     timeout: this.timeout
                 });
                 if (!res.ok) {
                     const body = await res.text();
-                    throw new Error(body);
+                    throw new Error(`body: ${body}`);
                 }
             }
             catch (error) {
+                this.log.error(`CH write error: ${error.message}`, error, res);
                 this.exceptWrite(dust);
-                this.log.error('CH write error', error);
             }
         })();
     }

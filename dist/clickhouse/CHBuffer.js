@@ -4,6 +4,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Custom JSON filter for ClickHouse adaptation
  */
 function replacer(k, v) {
+    if (v === null)
+        return;
     return typeof v === 'boolean' ? Number(v) : v;
 }
 class CHBuffer {

@@ -12,14 +12,25 @@ clickhouse:
   # common tables columnts
   # all tables by default implements this cols
   base:
+    # unique event id
     id: UInt64
+    # rockstat user id
     uid: UInt64
+    # event date (UTC, server time)
     date: Date
+    # event datetime (UTC, server time)
     dateTime: DateTime
+    # event timestamp (server time)
     timestamp: UInt64
-    channel: Enum8('' = 0, 'other' = 1, 'track' = 5, 'webhook' = 6, 'pixel' = 7, 'redir' = 8, 'ws' = 9, 'r1' = 33 , 'r2' = 34, 'r3' = 35)
+    # received via
+    # - ws: websocket
+    # - r*: reserved for easy introduce new one
+    channel: Enum8('' = 0, 'other' = 1, 'track' = 5, 'wh' = 6, 'pixel' = 7, 'redir' = 8, 'ws' = 9, 'r1' = 33 , 'r2' = 34, 'r3' = 35)
+    # rockstat project id (receives from with event)
     projectId: UInt32
+    # event name
     name: String
+    # event dependend service
     service: String
 
 
@@ -27,20 +38,26 @@ clickhouse:
   # common tables structrute. Can be omited by custom config
   tables:
     webhooks:
-      service: String
       data.key: Array(String)
       data.value: Array(String)
       _options:
         engine: MergeTree(date, (service, name, date), 8192)
     events:
-      uid: UInt64
-      ip: String
-      userAgent: String
+      # transport data / ip
+      td_ip: String
+      # transport data / user agent
+      td_ua: String
+      # full page urm
       page_url: String
-      page_referrer: String
+      # page referrer
+      page_ref: String
+      # page title
       page_title: String
+      # domain/hostname of browsed page
       page_domain: String
-      page_proto: Enum8('' = 0, 'http' = 1, 'https' = 2, 'other' = 3, 'ws' = 4)
+      # http/https/etc
+      page_scheme: Enum8('' = 0, 'http' = 1, 'https' = 2, 'other' = 3, 'ws' = 4)
+      # marketing marks
       page_query_utm_source: String
       page_query_utm_campaign: String
       page_query_utm_medium: String
@@ -48,89 +65,156 @@ clickhouse:
       page_query_utm_term: String
       page_query_gclid: String
       page_query_yclid: String
+      # extra query params
       page_query.key: Array(String)
       page_query.value: Array(String)
-      session_type: String
-      session_engine: String
-      session_num: UInt16
-      session_hasMarks: UInt8
-      session_pageNum: UInt16
-      session_eventNum: UInt16
-      session_marks_utm_source: String
-      session_marks_utm_campaign: String
-      session_marks_utm_medium: String
-      session_marks_utm_content: String
-      session_marks_utm_term: String
-      session_marks_has_gclid: Int8 DEFAULT -1
-      session_marks_has_yclid: Int8 DEFAULT -1
-      session_marks.key: Array(String)
-      session_marks.value: Array(String)
-      session_start: UInt64
-      session_refHost: String
-      lib_name: String
-      lib_lv: UInt32
-      lib_sv: UInt32
-      client_tz: String
-      client_ts: UInt64
-      client_tzOffset: Int32
-      client_platform: String
-      client_product: String
-      browser_if: Array(UInt8)
-      browser_wh_w: UInt16
-      browser_wh_h: UInt16
-      browser_sr_tot_w: UInt16
-      browser_sr_tot_h: UInt16
-      browser_sr_avail_w: UInt16
-      browser_sr_avail_h: UInt16
-      browser_sr_asp: UInt16
-      browser_sr_oAngle: UInt16
-      browser_sr_oType: String
-      sxg_country_iso: String
-      sxg_country_name_ru: String
-      sxg_country_name_en: String
-      sxg_region_iso: String
-      sxg_region_name_ru: String
-      sxg_region_name_en: String
-      sxg_city_id: UInt32
-      sxg_city_name_ru: String
-      sxg_city_name_en: String
-      mdd_isBot: Int8
-      mdd_client_type: String
-      mdd_client_name: String
-      mdd_client_version: String
-      mdd_os_name: String
-      mdd_os_version: String
-      mdd_os_platform: String
-      mdd_device_type: String
-      mdd_device_brand: String
-      mdd_device_model: String
+      # session type: (campaign/organic/referral/direct/internal/social)
+      sess_type: String
+      # search/marketing engine
+      sess_engine: String
+      # user session number
+      sess_num: UInt16
+      # marks flag
+      sess_hasMarks: UInt8
+      # page number in current session
+      sess_pageNum: UInt16
+      # event number in current session
+      sess_eventNum: UInt16
+      # marketing marks
+      sess_marks_utm_source: String
+      sess_marks_utm_campaign: String
+      sess_marks_utm_medium: String
+      sess_marks_utm_content: String
+      sess_marks_utm_term: String
+      sess_marks_has_gclid: Int8 DEFAULT -1
+      sess_marks_has_yclid: Int8 DEFAULT -1
+      # extra marks
+      sess_marks.key: Array(String)
+      sess_marks.value: Array(String)
+      # session start timestamp
+      sess_start: UInt64
+      # referrer hostname (without www)
+      sess_refhost: String
+      # library indentificator
+      lib_id: String
+      # library version
+      lib_v: Float32
+      # library snippet version
+      lib_sv: Float32
+      # scroll doc height
+      scroll_dh: UInt16
+      # scroll client height
+      scroll_ch: UInt16
+      # scroll top offset pixels
+      scroll_to: Int32 # can be ne
+      # current scroll (persents)
+      scroll_cs: UInt16
+      # max scroll (persents)
+      scroll_ms: UInt16
+      # iframe detection
+      browser_if1: Int8
+      browser_if2: Int8
+      # browser width
+      browser_w: Int16
+      # browser height
+      browser_h: Int16
+      # browser total width
+      browser_tw: Int16
+      # browser total height
+      browser_th: Int16
+      # browser available width
+      browser_aw: Int16
+      # browser available height
+      browser_ah: Int16
+      # screen.orientation.devicePixelRatio
+      browser_sopr: Int16
+      # screen.orientation.angle
+      browser_soa: Int16
+      # screen.orientation.type
+      browser_sot: String
+      # navigator.platform
+      browser_plt: String
+      # navigator.product
+      browser_prd: String
+      # sypex geo cols
+      sxgeo_country_iso: String
+      sxgeo_country_ru: String
+      sxgeo_country_en: String
+      sxgeo_region_iso: String
+      sxgeo_region_ru: String
+      sxgeo_region_en: String
+      sxgeo_city_ru: String
+      sxgeo_city_en: String
+      # maxmins geo cols
+      mmgeo_country_iso: String
+      mmgeo_country_ru: String
+      mmgeo_country_en: String
+      mmgeo_region_iso: String
+      mmgeo_region_ru: String
+      mmgeo_region_en: String
+      mmgeo_city_ru: String
+      mmgeo_city_en: String
+      # user agent parser cols
+      uaparser_is_bot: Int8
+      uaparser_is_mob: Int8
+      uaparser_is_pc: Int8
+      uaparser_browser_family: String
+      uaparser_browser_version: Array(UInt16)
+      uaparser_os_family: String
+      uaparser_os_version: Array(UInt16)
+      uaparser_device_family: String
+      uaparser_device_brand: String
+      uaparser_device_model: String
+      # timezone name
+      user_tz: String
+      # timestamp
+      user_ts: UInt64
+      # timezone offset * 1000
+      user_tzo: Int32
+      # id (user id from website that uses rockstat)
       user_id: String
+      # google analytics client id
       user_gaId: String
+      # yandex metrika client id
       user_ymId: String
-      user_traits.key: Array(String)
-      user_traits.value: Array(String)
+      # custom user traits
+      user.key: Array(String)
+      user.value: Array(String)
+      # extra data fields
       data.key: Array(String)
       data.value: Array(String)
-      scroll_docHeight: UInt16
-      scroll_clientHeight: UInt16
-      scroll_topOffset: Int32 # can be ne
-      scroll_scroll: UInt16
-      scroll_maxScroll: UInt16
-      cf_locstor: Int16 DEFAULT -1
-      cf_addel: Int16 DEFAULT -1
-      cf_promise: Int16 DEFAULT -1
-      cf_sbeacon: Int16 DEFAULT -1
-      cf_atob: Int16 DEFAULT -1
-      cf_wpush: Int16 DEFAULT -1
-      perf_ce: Int16
+      # LocalStorage
+      char_ls: Int16 DEFAULT -1
+      # document.addEventListener
+      char_ae: Int16 DEFAULT -1
+      # Promise
+      char_pr: Int16 DEFAULT -1
+      # sendBeacon
+      char_sb: Int16 DEFAULT -1
+      # atob
+      char_ab: Int16 DEFAULT -1
+      # web-push
+      char_wp: Int16 DEFAULT -1
+      # (browser performance metrics)
+      # timing.connectStart (reference point, always 0)
       perf_cs: Int16
-      perf_dc: Int16
-      perf_di: Int16
-      perf_dl: Int16
-      perf_rqs: Int16
-      perf_rse: Int16
-      perf_rss: Int16
+      # timing.secureConnectionStart (num / -1)
       perf_scs: Int16
+      # timing.domLoading
+      perf_dl: Int16
+      # timing.domComplete (num / -1)
+      perf_dc: Int16
+      # timing.domInteractive
+      perf_di: Int16
+      # timing.requestStart
+      perf_rqs: Int16
+      # timing.responseStart
+      perf_rss: Int16
+      # timing.responseEnd
+      perf_rse: Int16
+      # timing.connectEnd
+      perf_ce: Int16
+      ### table options
       _options:
         engine: MergeTree(date, (intHash32(uid), date), 8192)
 
