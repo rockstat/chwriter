@@ -70,7 +70,7 @@ clickhouse:
       page_query.value: Array(String)
       # session type: (campaign/organic/referral/direct/internal/social)
       sess_type: String
-      # search/marketing engine
+      # search/social/ads engine
       sess_engine: String
       # user session number
       sess_num: UInt16
