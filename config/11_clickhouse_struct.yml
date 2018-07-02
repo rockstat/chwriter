@@ -7,7 +7,7 @@ clickhouse:
     track/default: events
     track/activity: activity
     track/scroll: activity
-    other: other
+    other: webhooks
 
   # common tables columnts
   # all tables by default implements this cols
