@@ -1,6 +1,7 @@
 
-import { DefaultDict, defaultDict } from '@app/struct/DefaultDict';
 import * as  Lazy from 'lazy.js';
+
+import { DefaultDict, defaultDict } from '@app/struct/DefaultDict';
 import { CHTableCols, CHTableOptions, CHConfig } from '@app/types';
 import { Deps } from '@app/AppServer';
 import { Logger } from 'rock-me-ts';
@@ -73,15 +74,21 @@ export class CHSync {
     // Detecting nested fields
     for (const row of list) {
       const { table, name, type } = row;
-      const [key, sub] = name.split('.');
+      // detecting storage for extra properties
+      let [key, sub] = name.split('extra.');
       this.tablesCols.get(table)[name] = type;
       if (sub) {
+        key = key.replace(/_$/, '');
+        this.log.debug('extra field "%s": "%s"', key, sub);
         this.tablesNested.get(table).add(key);
       }
     }
     this.log.info({
-      tables: this.tablesCols.keys().join(', ')
+      tables: this.tablesCols.keys().join(', '),
     }, 'Discovered');
+    for(const [tname, tcols] of this.tablesCols.entries()){
+      this.log.debug(`table: ${tname}: %s `, Object.keys(tcols))
+    }
   }
 
   /**

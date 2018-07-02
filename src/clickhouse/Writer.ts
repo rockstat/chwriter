@@ -1,86 +1,15 @@
 import { Deps } from "@app/AppServer";
-import { Logger, MeterFacade, Meter } from "rock-me-ts";
+import { Logger, Meter } from "rock-me-ts";
 import { CHConfig } from "@app/types";
 import { CHClient } from "./CHClient";
 import { CHSync } from "./CHSync";
 import { CHConfigHandler } from "./CHConfig";
 import { format as dateFormat } from 'cctz';
-import { unzip } from '../struct/unzip';
-import { pick } from '../helpers';
+import { isObject } from '@app/helpers/object';
+import { flatObject } from '@app/helpers/object-flatten';
 
-/**
- * Check is Object
- */
-const isObject = (o: any) => {
-  return (!!o && typeof o === 'object' && Object.prototype.toString.call(o) === '[object Object]')
-};
-// Stub
-const emptySet = new Set();
-
-
-type StructChild = {
-  [k: string]: any;
-};
 type CHRecord = {
   [k: string]: any;
-};
-
-/**
- * Funtion to transform nested json structure to
- * flat database-like considering locatins rules
- * @param child {Object}
- * @param nested {Set}
- * @param cols {Object}
- * @param path {Array<string>}
- * @param separator {string}
- * @param noCheck {boolean}
- * @return {Object}
- */
-const flatObject = (child: StructChild, nested: Set<string> | null,
-  cols: StructChild, path: Array<string> = [], separator = '_',
-  noCheck = false): StructChild => {
-  //
-  const acc: StructChild = {};
-  const root_path = path.join(separator);
-  const kv: StructChild | null = (root_path && nested && nested.has(root_path)) ? {} : null;
-  Object.keys(child)
-    .forEach((key: string) => {
-      const val = child[key];
-      const isObj = isObject(val);
-      const itemPath = path.concat(key).join(separator);
-      if (kv) {
-        if (isObj) {
-          Object.assign(
-            kv,
-            flatObject(val, null, {}, [], separator, true)
-          );
-        }
-        else if (cols[itemPath]) {
-          acc[itemPath] = val;
-        }
-        else {
-          kv[key] = val;
-        }
-      }
-      else {
-        if (isObj) {
-          Object.assign(
-            acc,
-            flatObject(val, nested, cols, path.concat([key]), separator, noCheck)
-          );
-        }
-        else if (cols[itemPath] || noCheck) {
-          acc[itemPath] = val;
-        }
-        else {
-          console.warn(`!! not found path:${path.join('_')}_${key}, val:{val}`);
-        }
-      }
-    });
-  return Object.assign(
-    acc,
-    kv && flatObject(unzip(kv, String, String), null, cols, [root_path], '.', true)
-  );
 };
 
 /**
@@ -161,6 +90,7 @@ export class CHWriter {
           data.dateTime = dateFormat('%F %X', unix);
           data.timestamp = time;
           const row = this.formatter(table, data);
+          console.log(row)
           this.chc.getWriter(table).push(row);
         } catch (error) {
           console.error(`writer strange error`, error);

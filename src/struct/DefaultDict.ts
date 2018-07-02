@@ -3,6 +3,7 @@ export type DefaultDict<T> = {
   set: (key: string, val: T) => void;
   has: (key: string) => boolean;
   keys: () => Array<string>;
+  values: () => Array<T>;
   entries: () => Array<[string, T]>;
   dict: { [k: string]: T };
 }
@@ -22,6 +23,7 @@ export function defaultDict<T>(type: new () => T): DefaultDict<T> {
     set: (key: string, val: T) => dict[key] = val,
     has: (key: string) => dict.hasOwnProperty(key),
     keys: () => Object.keys(dict),
+    values: () => Object.values(dict),
     entries: () => Object.entries(dict),
     dict: dict
   };

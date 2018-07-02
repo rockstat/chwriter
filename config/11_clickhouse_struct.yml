@@ -38,8 +38,8 @@ clickhouse:
   # common tables structrute. Can be omited by custom config
   tables:
     webhooks:
-      data.key: Array(String)
-      data.value: Array(String)
+      extra.key: Array(String)
+      extra.value: Array(String)
       _options:
         engine: MergeTree(date, (service, name, date), 8192)
     events:
@@ -66,8 +66,8 @@ clickhouse:
       page_query_gclid: String
       page_query_yclid: String
       # extra query params
-      page_query.key: Array(String)
-      page_query.value: Array(String)
+      page_query_extra.key: Array(String)
+      page_query_extra.value: Array(String)
       # session type: (campaign/organic/referral/direct/internal/social)
       sess_type: String
       # search/social/ads engine
@@ -89,8 +89,8 @@ clickhouse:
       sess_marks_has_gclid: Int8 DEFAULT -1
       sess_marks_has_yclid: Int8 DEFAULT -1
       # extra marks
-      sess_marks.key: Array(String)
-      sess_marks.value: Array(String)
+      sess_marks_extra.key: Array(String)
+      sess_marks_extra.value: Array(String)
       # session start timestamp
       sess_start: UInt64
       # referrer hostname (without www)
@@ -178,11 +178,11 @@ clickhouse:
       # yandex metrika client id
       user_ymId: String
       # custom user traits
-      user.key: Array(String)
-      user.value: Array(String)
+      user_extra.key: Array(String)
+      user_extra.value: Array(String)
       # extra data fields
-      data.key: Array(String)
-      data.value: Array(String)
+      data_extra.key: Array(String)
+      data_extra.value: Array(String)
       # LocalStorage
       char_ls: Int16 DEFAULT -1
       # document.addEventListener
