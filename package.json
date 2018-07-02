@@ -1,6 +1,6 @@
 {
   "name": "rst-chwriter",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Rockstat clickhouse writer service",
   "main": "dist/index.js",
   "scripts": {

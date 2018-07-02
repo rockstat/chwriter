@@ -3,6 +3,7 @@ export declare type DefaultDict<T> = {
     set: (key: string, val: T) => void;
     has: (key: string) => boolean;
     keys: () => Array<string>;
+    values: () => Array<T>;
     entries: () => Array<[string, T]>;
     dict: {
         [k: string]: T;

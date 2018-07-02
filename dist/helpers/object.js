@@ -1,5 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+function pick(obj, paths) {
+    return Object.assign({}, ...paths.map(prop => ({ [prop]: obj[prop] })));
+}
+exports.pick = pick;
+/**
+ * Check is Object
+ */
+exports.isObject = (o) => {
+    return (!!o && typeof o === 'object' && Object.prototype.toString.call(o) === '[object Object]');
+};
 /**
  * Function implements zip algorithm with filtration
  */
@@ -22,4 +32,4 @@ function unzip(obj, keyFilter, valFilter) {
 }
 exports.unzip = unzip;
 ;
-//# sourceMappingURL=unzip.js.map
+//# sourceMappingURL=object.js.map

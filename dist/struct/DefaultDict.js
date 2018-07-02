@@ -15,6 +15,7 @@ function defaultDict(type) {
         set: (key, val) => dict[key] = val,
         has: (key) => dict.hasOwnProperty(key),
         keys: () => Object.keys(dict),
+        values: () => Object.values(dict),
         entries: () => Object.entries(dict),
         dict: dict
     };

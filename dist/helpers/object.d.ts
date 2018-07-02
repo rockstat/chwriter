@@ -1,3 +1,8 @@
+export declare function pick<T, K extends keyof T>(obj: T, paths: K[]): Pick<T, K>;
+/**
+ * Check is Object
+ */
+export declare const isObject: (o: any) => boolean;
 export declare type ZipFilter<T> = (x: any) => T;
 export declare type ZipObject<V> = {
     [k: string]: V;
