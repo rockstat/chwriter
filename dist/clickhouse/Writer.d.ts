@@ -32,7 +32,8 @@ export declare class CHWriter {
      */
     init(): Promise<void>;
     /**
-     * Main writer
+     * Write data to ClickHouse
+     * @param msg BaseIncomingMessage
      */
     write: (msg: CHRecord) => void;
 }

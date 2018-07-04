@@ -17,7 +17,8 @@ class CHWriter {
     constructor(deps) {
         this.initialized = false;
         /**
-         * Main writer
+         * Write data to ClickHouse
+         * @param msg BaseIncomingMessage
          */
         this.write = (msg) => {
             const { time, ...rest } = msg;
