@@ -67,7 +67,8 @@ export class CHWriter {
   }
 
   /**
-   * Main writer
+   * Write data to ClickHouse
+   * @param msg BaseIncomingMessage
    */
   write = (msg: CHRecord) => {
     const { time, ...rest } = msg;
