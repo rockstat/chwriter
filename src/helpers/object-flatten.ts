@@ -29,6 +29,7 @@ export const flatObject = (child: StructChild, nested: Set<string> | null, cols:
       const val = child[key];
       const isObj = isObject(val);
       const itemPath = path.concat(key).join(separator);
+      // check key has extra fields container
       const keyExtra: StructChild | null = (nested && nested.has(itemPath)) ? {} : null;
       // add to extra props object
       if (hasExtra && !keyExtra) {
