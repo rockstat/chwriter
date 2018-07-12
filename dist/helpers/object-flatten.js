@@ -23,6 +23,7 @@ exports.flatObject = (child, nested, cols, path = [], separator = '_', noCheck =
         const val = child[key];
         const isObj = object_1.isObject(val);
         const itemPath = path.concat(key).join(separator);
+        // check key has extra fields container
         const keyExtra = (nested && nested.has(itemPath)) ? {} : null;
         // add to extra props object
         if (hasExtra && !keyExtra) {

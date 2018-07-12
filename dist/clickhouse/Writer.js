@@ -40,7 +40,6 @@ class CHWriter {
                         data.dateTime = cctz_1.format('%F %X', unix);
                         data.timestamp = time;
                         const row = this.formatter(table, data);
-                        console.log(row);
                         this.chc.getWriter(table).push(row);
                     }
                     catch (error) {
