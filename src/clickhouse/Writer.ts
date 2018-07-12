@@ -24,7 +24,7 @@ export class CHWriter {
   chc: CHClient;
   chs: CHSync;
   copyProps: string[];
-  dest: CHConfig['destination']
+  dest: CHConfig['destinations']
   /**
    *
    * @param deps DI
@@ -35,7 +35,7 @@ export class CHWriter {
     this.meter = meter;
     this.copyProps = ['channel', 'uid', 'name', 'service', 'projectId', 'td']
     const chcfg = this.options = CHConfigHandler.extend(config.get('clickhouse'));
-    this.dest = this.options.destination;
+    this.dest = this.options.destinations;
     this.chc = new CHClient(deps);
     this.chs = new CHSync(chcfg, this.chc, deps);
     // main firmatter

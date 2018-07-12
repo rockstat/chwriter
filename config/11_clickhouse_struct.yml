@@ -3,7 +3,7 @@ clickhouse:
 
   # data location
   # it mean in which table write event
-  destination:
+  destinations:
     track/default: events
     track/activity: activity
     track/scroll: activity

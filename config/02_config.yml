@@ -1,7 +1,7 @@
 ---
 title: Rockstat clickhouse writer
 rpc:
-  name: clickhouse_writer
+  name: chwriter
   listen_all: true
   listen_direct: true
 
