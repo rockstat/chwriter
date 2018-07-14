@@ -14,6 +14,7 @@ export type CHTablesConfig = { [key: string]: CHTableDefinition };
 
 export type CHConfig = {
   dsn: string;
+  copy_props: Array<string>;
   uploadInterval: number; // seconds
   sync: boolean;
   destinations: { [key: string]: any };// incoming data distribotion among tables, using internal routing key
@@ -49,6 +50,14 @@ export interface CHQueryParams {
   query?: string;
 }
 
+
+
+// ##### CH DATA #####
+
+
+export type HandyCHRecord = {
+  [k: string]: any;
+};
 
 
 // ##### CONFIG ROOT #####

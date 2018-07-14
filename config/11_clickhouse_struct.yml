@@ -1,6 +1,7 @@
 ---
 clickhouse:
-
+  # which props from base message should be copied
+  copy_props: ['channel', 'uid', 'name', 'service', 'projectId', 'td']
   # data location
   # it mean in which table write event
   destinations:
@@ -47,6 +48,8 @@ clickhouse:
       td_ip: String
       # transport data / user agent
       td_ua: String
+      # simple fingerprint based on IP and UserAgent
+      td_fpid: UInt64
       # full page urm
       page_url: String
       # page referrer

@@ -1,16 +1,12 @@
 import { Deps } from "@app/AppServer";
 import { Logger, Meter } from "rock-me-ts";
-import { CHConfig } from "@app/types";
+import { CHConfig, HandyCHRecord } from "@app/types";
 import { CHClient } from "./CHClient";
 import { CHSync } from "./CHSync";
 import { CHConfigHandler } from "./CHConfig";
 import { format as dateFormat } from 'cctz';
 import { isObject } from '@app/helpers/object';
 import { flatObject } from '@app/helpers/object-flatten';
-
-type CHRecord = {
-  [k: string]: any;
-};
 
 /**
  * Main writer class. Runs other nessesary components
@@ -33,13 +29,13 @@ export class CHWriter {
     const { log, meter, config } = deps;
     this.log = log.for(this)
     this.meter = meter;
-    this.copyProps = ['channel', 'uid', 'name', 'service', 'projectId', 'td']
-    const chcfg = this.options = CHConfigHandler.extend(config.get('clickhouse'));
+    this.options = CHConfigHandler.extend(config.get('clickhouse'));
     this.dest = this.options.destinations;
     this.chc = new CHClient(deps);
-    this.chs = new CHSync(chcfg, this.chc, deps);
+    this.chs = new CHSync(this.options, this.chc, deps);
+    this.copyProps = this.options.copy_props;
     // main firmatter
-    this.formatter = (table: string, record: CHRecord) => {
+    this.formatter = (table: string, record: HandyCHRecord) => {
       const { cols, nested } = this.chs.tableConfig(table);
       if (!cols || !nested) {
         this.log.error({
@@ -70,7 +66,7 @@ export class CHWriter {
    * Write data to ClickHouse
    * @param msg BaseIncomingMessage
    */
-  write = (msg: CHRecord) => {
+  write = (msg: HandyCHRecord) => {
     const { time, ...rest } = msg;
     const unix = Math.round(time / 1000);
     if ('service' in rest && 'name' in rest) {

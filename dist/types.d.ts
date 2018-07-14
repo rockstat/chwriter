@@ -14,9 +14,10 @@ export declare type CHTablesConfig = {
 };
 export declare type CHConfig = {
     dsn: string;
+    copy_props: Array<string>;
     uploadInterval: number;
     sync: boolean;
-    destination: {
+    destinations: {
         [key: string]: any;
     };
     base: CHTableCols;
@@ -41,6 +42,9 @@ export interface CHQueryParams {
     database: string;
     query?: string;
 }
+export declare type HandyCHRecord = {
+    [k: string]: any;
+};
 export declare type ModuleConfig = {
     name: string;
     clickhouse: CHConfig;

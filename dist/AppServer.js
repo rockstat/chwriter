@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
-const cctz_1 = require("cctz");
 const rock_me_ts_1 = require("rock-me-ts");
 const clickhouse_1 = require("@app/clickhouse");
 const constants_1 = require("@app/constants");
@@ -23,6 +22,7 @@ class AppServer {
         const config = new rock_me_ts_1.AppConfig();
         const log = new rock_me_ts_1.Logger(config.log);
         const meter = new rock_me_ts_1.Meter(config.meter);
+        this.status = new rock_me_ts_1.AppStatus();
         this.name = config.rpc.name;
         this.deps = new Deps({
             id: new rock_me_ts_1.TheIds(),
@@ -49,21 +49,12 @@ class AppServer {
     async setup() {
         await this.chw.init();
         this.rpc.register(constants_1.BROADCAST, this.chw.write);
-        this.rpc.register(constants_1.METHOD_STATUS, async () => {
-            const appUptime = Number(new Date()) - Number(this.appStarted);
-            return {
-                status: "running",
-                app_started: Number(this.appStarted),
-                app_uptime: appUptime,
-                app_uptime_h: cctz_1.format('%X', Math.round(appUptime / 1000)),
-                methods: []
-            };
-        });
+        this.rpc.register(constants_1.METHOD_STATUS, this.status.get);
         const aliver = () => {
             this.rpc.notify(constants_1.SERVICE_DIRECTOR, constants_1.METHOD_IAMALIVE, { name: this.name });
         };
         setTimeout(aliver, 500);
-        setInterval(aliver, 60000);
+        setInterval(aliver, 5 * 1000);
     }
     /**
      * Graceful stot

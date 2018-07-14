@@ -55,11 +55,11 @@ class CHWriter {
         const { log, meter, config } = deps;
         this.log = log.for(this);
         this.meter = meter;
-        this.copyProps = ['channel', 'uid', 'name', 'service', 'projectId', 'td'];
-        const chcfg = this.options = CHConfig_1.CHConfigHandler.extend(config.get('clickhouse'));
-        this.dest = this.options.destination;
+        this.options = CHConfig_1.CHConfigHandler.extend(config.get('clickhouse'));
+        this.dest = this.options.destinations;
         this.chc = new CHClient_1.CHClient(deps);
-        this.chs = new CHSync_1.CHSync(chcfg, this.chc, deps);
+        this.chs = new CHSync_1.CHSync(this.options, this.chc, deps);
+        this.copyProps = this.options.copy_props;
         // main firmatter
         this.formatter = (table, record) => {
             const { cols, nested } = this.chs.tableConfig(table);

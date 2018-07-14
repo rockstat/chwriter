@@ -9,7 +9,8 @@ import {
   TheIds,
   Logger,
   AppConfig,
-  RPCAdapter
+  RPCAdapter,
+  AppStatus
 } from 'rock-me-ts';
 
 import {
@@ -22,7 +23,6 @@ import {
 import {
   SERVICE_DIRECTOR,
   METHOD_IAMALIVE,
-  SERVICE_KERNEL,
   METHOD_STATUS,
   BROADCAST
 } from '@app/constants';
@@ -49,6 +49,7 @@ export class Deps {
 export class AppServer {
   log: Logger;
   deps: Deps;
+  status: AppStatus;
   name: string;
   rpcAdaptor: RPCAdapter;
   rpc: RPCAgnostic;
@@ -60,6 +61,7 @@ export class AppServer {
     const config = new AppConfig<ModuleConfig>();
     const log = new Logger(config.log);
     const meter = new Meter(config.meter);
+    this.status = new AppStatus();
     this.name = config.rpc.name;
     this.deps = new Deps({
       id: new TheIds(),
@@ -88,21 +90,12 @@ export class AppServer {
   async setup() {
     await this.chw.init();
     this.rpc.register(BROADCAST, this.chw.write);
-    this.rpc.register(METHOD_STATUS, async () => {
-      const appUptime = Number(new Date()) - Number(this.appStarted);
-      return {
-        status: "running",
-        app_started: Number(this.appStarted),
-        app_uptime: appUptime,
-        app_uptime_h: dateFormat('%X', Math.round(appUptime / 1000)),
-        methods: []
-      };
-    });
+    this.rpc.register(METHOD_STATUS, this.status.get);
     const aliver = () => {
       this.rpc.notify(SERVICE_DIRECTOR, METHOD_IAMALIVE, { name: this.name })
     };
     setTimeout(aliver, 500);
-    setInterval(aliver, 60000);
+    setInterval(aliver, 5*1000);
   }
 
   /**

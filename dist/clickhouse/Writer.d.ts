@@ -1,11 +1,8 @@
 import { Deps } from "@app/AppServer";
 import { Logger, Meter } from "rock-me-ts";
-import { CHConfig } from "@app/types";
+import { CHConfig, HandyCHRecord } from "@app/types";
 import { CHClient } from "./CHClient";
 import { CHSync } from "./CHSync";
-declare type CHRecord = {
-    [k: string]: any;
-};
 /**
  * Main writer class. Runs other nessesary components
  */
@@ -20,7 +17,7 @@ export declare class CHWriter {
     chc: CHClient;
     chs: CHSync;
     copyProps: string[];
-    dest: CHConfig['destination'];
+    dest: CHConfig['destinations'];
     /**
      *
      * @param deps DI
@@ -35,6 +32,5 @@ export declare class CHWriter {
      * Write data to ClickHouse
      * @param msg BaseIncomingMessage
      */
-    write: (msg: CHRecord) => void;
+    write: (msg: HandyCHRecord) => void;
 }
-export {};

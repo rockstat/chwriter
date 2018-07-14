@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { RPCAgnostic, Meter, RedisFactory, TheIds, Logger, AppConfig, RPCAdapter } from 'rock-me-ts';
+import { RPCAgnostic, Meter, RedisFactory, TheIds, Logger, AppConfig, RPCAdapter, AppStatus } from 'rock-me-ts';
 import { ModuleConfig } from '@app/types';
 import { CHWriter } from '@app/clickhouse';
 /**
@@ -23,6 +23,7 @@ export declare class Deps {
 export declare class AppServer {
     log: Logger;
     deps: Deps;
+    status: AppStatus;
     name: string;
     rpcAdaptor: RPCAdapter;
     rpc: RPCAgnostic;
