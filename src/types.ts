@@ -59,9 +59,7 @@ export type HandyCHRecord = {
   [k: string]: any;
 };
 
-
 // ##### CONFIG ROOT #####
-
 export type ModuleConfig = {
   name: string;
   clickhouse: CHConfig;
