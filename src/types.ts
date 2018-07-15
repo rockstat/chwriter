@@ -66,5 +66,3 @@ export type ModuleConfig = {
   name: string;
   clickhouse: CHConfig;
 }
-
-
