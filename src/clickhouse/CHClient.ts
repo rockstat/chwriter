@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { unlink, writeFile } from 'fs';
 import * as qs from 'qs';
 import { Deps } from '@app/AppServer';
-import { Logger } from 'rock-me-ts';
+import { Logger, MetricsCollector, MeterFacade } from 'rock-me-ts';
 import { parse as urlParse } from 'url';
 import { CHConfig } from '@app/types';
 import { CHBufferDust, CHQueryParams, CHWritersDict } from '../types';
@@ -28,9 +28,10 @@ export class CHClient {
   writers: CHWritersDict = {};
   timeout: number = 5000;
   emergency_dir: string;
+  meter: MeterFacade
 
   constructor(deps: Deps) {
-    const { log, config } = deps;
+    const { log, config, meter } = deps;
     const options = this.options = config.get('clickhouse');
     const { dsn } = options;
     this.log = log.for(this);
@@ -38,6 +39,7 @@ export class CHClient {
     const { port, hostname, protocol, path, auth } = urlParse(dsn);
     this.db = (path || '').slice(1);
     this.params = { database: this.db };
+    this.meter = meter;
     if (auth) {
       const [user, password] = auth.split(':');
       this.params = { user, password, ...this.params };
@@ -148,7 +150,7 @@ export class CHClient {
         this.writers[table] = undefined;
         writer.close()
           .then((dust: CHBufferDust) => {
-            this.log.debug(`uploding ${table} batch id:${dust.time}`);
+            this.log.info(`uploding ${table} batch id:${dust.time}`);
             this.handleBuffer(dust);
           })
           .catch((error: Error) => {
@@ -163,6 +165,7 @@ export class CHClient {
    */
   handleBuffer(dust: CHBufferDust): void {
     // Skip if no data
+    const requestTime = this.meter.timenote('ch.upload')
     const queryUrl = this.url + '/?' + qs.stringify(
       Object.assign(
         {},
@@ -182,7 +185,11 @@ export class CHClient {
           const body = await res.text();
           throw new Error(`body: ${body}`);
         }
+        this.meter.tick('ch.upload.ok');
+        requestTime();
       } catch (error) {
+        requestTime()
+        this.meter.tick('ch.upload.error')
         this.log.error(`CH write error: ${error.message}`, error, res);
         this.exceptWrite(dust);
       }

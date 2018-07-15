@@ -67,6 +67,7 @@ export class CHWriter {
    * @param msg BaseIncomingMessage
    */
   write = (msg: HandyCHRecord) => {
+    this.meter.tick('ch.write.called')
     const { time, ...rest } = msg;
     const unix = Math.round(time / 1000);
     if ('service' in rest && 'name' in rest) {
@@ -88,6 +89,7 @@ export class CHWriter {
           data.timestamp = time;
           const row = this.formatter(table, data);
           this.chc.getWriter(table).push(row);
+          this.meter.tick('ch.write.success')
         } catch (error) {
           console.error(`writer strange error`, error);
         }

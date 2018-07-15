@@ -10,7 +10,8 @@ import {
   Logger,
   AppConfig,
   RPCAdapter,
-  AppStatus
+  AppStatus,
+  MeterFacade
 } from 'rock-me-ts';
 
 import {
@@ -55,12 +56,14 @@ export class AppServer {
   rpc: RPCAgnostic;
   appStarted: Date = new Date();
   chw: CHWriter;
+  meter: MeterFacade
 
   constructor() {
 
     const config = new AppConfig<ModuleConfig>();
     const log = new Logger(config.log);
     const meter = new Meter(config.meter);
+    this.meter = meter;
     this.status = new AppStatus();
     this.name = config.rpc.name;
     this.deps = new Deps({
@@ -81,7 +84,9 @@ export class AppServer {
     this.rpc = this.deps.rpc = new RPCAgnostic(rpcOptions);
     this.rpc.setup(this.rpcAdaptor);
     this.chw = new CHWriter(this.deps);
-    this.setup().then();
+    this.setup().then((() => {
+      this.log.info('Setup completed');
+    }));
   }
 
   /**
@@ -92,6 +97,7 @@ export class AppServer {
     this.rpc.register(BROADCAST, this.chw.write);
     this.rpc.register(METHOD_STATUS, this.status.get);
     const aliver = () => {
+      this.meter.tick('band.chwriter.alive')
       this.rpc.notify(SERVICE_DIRECTOR, METHOD_IAMALIVE, { name: this.name })
     };
     setTimeout(aliver, 500);
