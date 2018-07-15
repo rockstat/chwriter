@@ -910,8 +910,8 @@ rimraf@^2.6.1, rimraf@^2.6.2:
     glob "^7.0.5"
 
 "rock-me-ts@git+https://github.com/rockstat/rock-me-ts.git":
-  version "1.4.0"
-  resolved "git+https://github.com/rockstat/rock-me-ts.git#4c20b8b75058e883158f1b82ea8b60ed8a833810"
+  version "1.4.3"
+  resolved "git+https://github.com/rockstat/rock-me-ts.git#c1f39a49914e30eef85d7feceaaae7d96f6f1d42"
   dependencies:
     bluebird "^3.5.1"
     cctz "^1.7.7"
@@ -927,6 +927,7 @@ rimraf@^2.6.1, rimraf@^2.6.2:
     pino "^4.16.1"
     redis-fast-driver "^2.1.2"
     statsd-client "^0.4.2"
+    xxhash "^0.2.4"
 
 safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"
