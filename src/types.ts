@@ -53,8 +53,6 @@ export interface CHQueryParams {
 
 
 // ##### CH DATA #####
-
-
 export type HandyCHRecord = {
   [k: string]: any;
 };
