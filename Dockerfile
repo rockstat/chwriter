@@ -8,6 +8,8 @@ ENV LOG_LEVEL warn
 # RUN mkdir -p /app
 WORKDIR /app
 
+#cachebust
+ARG RELEASE=master
 COPY package.json .
 COPY yarn.lock .
 
