@@ -4,7 +4,7 @@ import * as  Lazy from 'lazy.js';
 import { DefaultDict, defaultDict } from '@app/struct/DefaultDict';
 import { CHTableCols, CHTableOptions, CHConfig } from '@app/types';
 import { Deps } from '@app/AppServer';
-import { Logger } from 'rock-me-ts';
+import { Logger } from '@rockstat/rock-me-ts';
 import { CHClient } from './CHClient';
 
 /**

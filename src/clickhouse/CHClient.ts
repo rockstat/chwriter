@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { unlink, writeFile } from 'fs';
 import * as qs from 'qs';
 import { Deps } from '@app/AppServer';
-import { Logger, MetricsCollector, MeterFacade } from 'rock-me-ts';
+import { Logger, MetricsCollector, MeterFacade } from '@rockstat/rock-me-ts';
 import { parse as urlParse } from 'url';
 import { CHConfig } from '@app/types';
 import { CHBufferDust, CHQueryParams, CHWritersDict } from '../types';

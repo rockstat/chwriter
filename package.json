@@ -36,6 +36,7 @@
     "typescript": "^2.7.2"
   },
   "dependencies": {
+    "@rockstat/rock-me-ts": "^1.5.3",
     "ajv": "^6.4.0",
     "bluebird": "^3.5.1",
     "cctz": "^1.7.7",
@@ -43,7 +44,6 @@
     "node-fetch": "^2.1.2",
     "qs": "^6.5.1",
     "reflect-metadata": "^0.1.12",
-    "rock-me-ts": "git+https://github.com/rockstat/rock-me-ts.git",
     "source-map-support": "^0.5.5",
     "xxhash": "^0.2.4"
   }

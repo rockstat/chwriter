@@ -1,5 +1,4 @@
 import 'reflect-metadata';
-import { format as dateFormat } from 'cctz';
 import {
   RPCAdapterRedis,
   RPCAgnostic,
@@ -12,7 +11,7 @@ import {
   RPCAdapter,
   AppStatus,
   MeterFacade
-} from 'rock-me-ts';
+} from '@rockstat/rock-me-ts';
 
 import {
   ModuleConfig

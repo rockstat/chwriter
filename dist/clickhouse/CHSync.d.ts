@@ -1,7 +1,7 @@
 import { DefaultDict } from '@app/struct/DefaultDict';
 import { CHConfig } from '@app/types';
 import { Deps } from '@app/AppServer';
-import { Logger } from 'rock-me-ts';
+import { Logger } from '@rockstat/rock-me-ts';
 import { CHClient } from './CHClient';
 /**
  * DB syncronisations system

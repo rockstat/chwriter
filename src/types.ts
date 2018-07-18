@@ -1,4 +1,4 @@
-import { RPCConfig, StatsDUDPConfig, LoggerConfig, RedisConfig, MeterConfig } from "rock-me-ts";
+import { RPCConfig, StatsDUDPConfig, LoggerConfig, RedisConfig, MeterConfig } from "@rockstat/rock-me-ts";
 
 // CH Configuration
 

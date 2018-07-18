@@ -2,6 +2,26 @@
 # yarn lockfile v1
 
 
+"@rockstat/rock-me-ts@^1.5.3":
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/@rockstat/rock-me-ts/-/rock-me-ts-1.5.3.tgz#8d205dd9234b62fa76eaf2e719d249e541e7f6c1"
+  dependencies:
+    bluebird "^3.5.1"
+    cctz "^1.7.7"
+    dotenv "^6.0.0"
+    ejs "^2.6.1"
+    eventemitter3 "^3.1.0"
+    flake-idgen "^1.1.0"
+    glob "^7.1.2"
+    int64-buffer "^0.1.10"
+    js-yaml "^3.11.0"
+    lru-cache "^4.1.3"
+    merge-options "^1.0.1"
+    pino "^4.16.1"
+    redis-fast-driver "^2.1.2"
+    statsd-client "^0.4.2"
+    xxhash "^0.2.4"
+
 "@types/bluebird@^3.5.20":
   version "3.5.22"
   resolved "https://registry.yarnpkg.com/@types/bluebird/-/bluebird-3.5.22.tgz#519b87fe3c9d290ca6c06381ffc3040770ab452b"
@@ -908,26 +928,6 @@ rimraf@^2.6.1, rimraf@^2.6.2:
   resolved "https://registry.yarnpkg.com/rimraf/-/rimraf-2.6.2.tgz#2ed8150d24a16ea8651e6d6ef0f47c4158ce7a36"
   dependencies:
     glob "^7.0.5"
-
-"rock-me-ts@git+https://github.com/rockstat/rock-me-ts.git":
-  version "1.4.4"
-  resolved "git+https://github.com/rockstat/rock-me-ts.git#ee90fd11ed6c0b84cd89add2710e54f705e317aa"
-  dependencies:
-    bluebird "^3.5.1"
-    cctz "^1.7.7"
-    dotenv "^6.0.0"
-    ejs "^2.6.1"
-    eventemitter3 "^3.1.0"
-    flake-idgen "^1.1.0"
-    glob "^7.1.2"
-    int64-buffer "^0.1.10"
-    js-yaml "^3.11.0"
-    lru-cache "^4.1.3"
-    merge-options "^1.0.1"
-    pino "^4.16.1"
-    redis-fast-driver "^2.1.2"
-    statsd-client "^0.4.2"
-    xxhash "^0.2.4"
 
 safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   version "5.1.2"

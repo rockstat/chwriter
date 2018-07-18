@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import { RPCAgnostic, Meter, RedisFactory, TheIds, Logger, AppConfig, RPCAdapter, AppStatus, MeterFacade } from 'rock-me-ts';
+import { RPCAgnostic, Meter, RedisFactory, TheIds, Logger, AppConfig, RPCAdapter, AppStatus, MeterFacade } from '@rockstat/rock-me-ts';
 import { ModuleConfig } from '@app/types';
 import { CHWriter } from '@app/clickhouse';
 /**

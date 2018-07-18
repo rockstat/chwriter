@@ -1,6 +1,6 @@
 import * as Bluebird from 'bluebird';
 import { Deps } from '@app/AppServer';
-import { Logger, MeterFacade } from 'rock-me-ts';
+import { Logger, MeterFacade } from '@rockstat/rock-me-ts';
 import { CHConfig } from '@app/types';
 import { CHBufferDust, CHQueryParams, CHWritersDict } from '../types';
 import { CHBuffer } from './CHBuffer';
