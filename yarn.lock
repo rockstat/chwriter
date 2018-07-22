@@ -3,8 +3,8 @@
 
 
 "@rockstat/rock-me-ts@^1.5.3":
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/@rockstat/rock-me-ts/-/rock-me-ts-1.5.3.tgz#8d205dd9234b62fa76eaf2e719d249e541e7f6c1"
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/@rockstat/rock-me-ts/-/rock-me-ts-1.6.0.tgz#d61486c55eb74cb73e41f768c14dbd33da425c2d"
   dependencies:
     bluebird "^3.5.1"
     cctz "^1.7.7"
@@ -35,8 +35,8 @@
   resolved "https://registry.yarnpkg.com/@types/lazy.js/-/lazy.js-0.3.29.tgz#828335a8296f4198fea6305ef48ea79e5586e0b8"
 
 "@types/mocha@^5.2.4":
-  version "5.2.4"
-  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.4.tgz#2f8fbdf95c69ebf82150a7864864010f186745bf"
+  version "5.2.5"
+  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.5.tgz#8a4accfc403c124a0bafe8a9fc61a05ec1032073"
 
 "@types/node@^9.6.18":
   version "9.6.23"
@@ -814,8 +814,8 @@ pino-std-serializers@^2.0.0:
   resolved "https://registry.yarnpkg.com/pino-std-serializers/-/pino-std-serializers-2.1.0.tgz#01953dcaecd5f43b331ecf2e312a49c9fd64851c"
 
 pino@^4.16.1:
-  version "4.17.3"
-  resolved "https://registry.yarnpkg.com/pino/-/pino-4.17.3.tgz#3536ea36f6258356ba8891d18dbf1afed41fcf09"
+  version "4.17.5"
+  resolved "https://registry.yarnpkg.com/pino/-/pino-4.17.5.tgz#771e7b94acf09082c1063bc5a91edc59a5503dc4"
   dependencies:
     chalk "^2.4.1"
     fast-json-parse "^1.0.3"
@@ -1119,14 +1119,13 @@ ts-node@^6.0.3:
     yn "^2.0.0"
 
 tsc-watch@^1.0.17:
-  version "1.0.22"
-  resolved "https://registry.yarnpkg.com/tsc-watch/-/tsc-watch-1.0.22.tgz#e11eea984bd0c90c4b7bfac557c9e66b2e7899da"
+  version "1.0.26"
+  resolved "https://registry.yarnpkg.com/tsc-watch/-/tsc-watch-1.0.26.tgz#a9130775b018b46b03116840debaac6dd40fbc56"
   dependencies:
     chalk "^2.3.0"
     cross-spawn "^5.1.0"
     ps-tree "^1.1.0"
     strip-ansi "^4.0.0"
-    typescript "*"
 
 tsconfig-paths@^3.3.2:
   version "3.4.2"
@@ -1150,7 +1149,7 @@ type-detect@^4.0.0:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/type-detect/-/type-detect-4.0.8.tgz#7646fb5f18871cfbb7749e69bd39a6388eb7450c"
 
-typescript@*, typescript@^2.7.2:
+typescript@^2.7.2:
   version "2.9.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
 
