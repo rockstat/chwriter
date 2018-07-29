@@ -1,0 +1,17 @@
+
+
+
+
+{"level":30,"time":1532682197108,"msg":"redis ready","pid":1,"hostname":"chwriter","name":"RedisClient","v":1}
+{"level":30,"time":1532682197108,"msg":"redis connected","pid":1,"hostname":"chwriter","name":"RedisClient","v":1}
+{"level":30,"time":1532682197108,"msg":"redis ready","pid":1,"hostname":"chwriter","name":"RedisClient","v":1}
+{"level":30,"time":1532682197108,"msg":"redis connected","pid":1,"hostname":"chwriter","name":"RedisClient","v":1}
+{"level":40,"time":1532682197108,"msg":"unhandled cmd [\"subscribe\",\"chwriter\",1]","pid":1,"hostname":"chwriter","name":"RPCAdapterRedis","v":1}
+{"level":40,"time":1532682197108,"msg":"unhandled cmd [\"subscribe\",\"broadcast\",2]","pid":1,"hostname":"chwriter","name":"RPCAdapterRedis","v":1}
+(node:1) UnhandledPromiseRejectionWarning: Error: [ Id: 15452E560CE00009; User "default"(1) proxying as "default"(1) to "172.16.25.1:8123"(6); RemoteAddr: "172.16.25.1:49334"; LocalAddr: "172.16.25.11:9090"; Duration: 412.177µs ]: cannot reach 172.16.25.1:8123; query: "SELECT table, name, type FROM system.columns WHERE database = 'stats' FORMAT JSON"
+
+    at CHClient.query (/app/dist/clickhouse/CHClient.js:89:19)
+    at <anonymous>
+    at process._tickCallback (internal/process/next_tick.js:182:7)
+(node:1) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 1)
+(node:1) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
