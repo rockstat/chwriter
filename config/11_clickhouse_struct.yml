@@ -24,9 +24,7 @@ clickhouse:
     # event timestamp (server time)
     timestamp: UInt64
     # received via
-    # - ws: websocket
-    # - r*: reserved for easy introduce new one
-    channel: Enum8('' = 0, 'other' = 1, 'track' = 5, 'wh' = 6, 'pixel' = 7, 'redir' = 8, 'ws' = 9, 'r1' = 33 , 'r2' = 34, 'r3' = 35)
+    channel: String
     # rockstat project id (receives from with event)
     projectId: UInt32
     # event name
