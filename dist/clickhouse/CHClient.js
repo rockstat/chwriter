@@ -115,7 +115,7 @@ class CHClient {
     exceptWrite(dust) {
         const fn = `${this.options.emergency_dir}/${dust.time}.json`;
         writeFileAsync(fn, dust.buffer)
-            .then(_ => this.log.info(`saved emergency file: ${fn}`))
+            .then(_ => this.log.warn(`saved emergency file: ${fn}`))
             .catch(error => this.log.error(`cant create emergency ${fn}`));
     }
     /**
@@ -131,7 +131,7 @@ class CHClient {
                 this.writers[table] = undefined;
                 writer.close()
                     .then((dust) => {
-                    this.log.info(`uploding ${table} batch id:${dust.time}`);
+                    this.log.debug(`uploding ${table} batch id:${dust.time}`);
                     this.handleBuffer(dust);
                 })
                     .catch((error) => {
