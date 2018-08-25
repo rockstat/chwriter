@@ -83,13 +83,14 @@ export class CHWriter {
             data[prop] = rest[prop];
           }
         }
+        console.log(data)
         try {
           data.date = dateFormat('%F', unix);
           data.dateTime = dateFormat('%F %X', unix);
           data.timestamp = time;
           const row = this.formatter(table, data);
           this.chc.getWriter(table).push(row);
-          this.meter.tick('ch.write.success')
+          this.meter.tick('ch.write.success');
         } catch (error) {
           console.error(`writer strange error`, error);
         }

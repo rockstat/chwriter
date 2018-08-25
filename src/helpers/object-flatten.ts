@@ -1,9 +1,12 @@
 import { isObject, unzip } from './object';
-
+import * as Debug from 'debug';
 
 type StructChild = {
   [k: string]: any;
 };
+
+const debug = Debug('flatten')
+
 
 /**
  * Funtion to transform nested json structure to
@@ -16,14 +19,11 @@ type StructChild = {
  * @param noCheck {boolean}
  * @return {Object}
  */
-
-
 export const flatObject = (child: StructChild, nested: Set<string> | null, cols: StructChild, path: Array<string> = [], separator = '_', noCheck = false): StructChild => {
-  //
-  const acc: StructChild = {};
+  const accum: StructChild = {};
   const root_path = path.join(separator);
   const hasExtra: StructChild | null = (nested && nested.has(root_path)) ? {} : null;
-  // console.log(`path:"${path}", root_path:"${root_path}", kv: "${hasExtra}"`)
+  debug(`path:"${path}", root_path:"${root_path}", kv: "${hasExtra}"`)
   Object.keys(child)
     .forEach((key: string) => {
       const val = child[key];
@@ -31,40 +31,47 @@ export const flatObject = (child: StructChild, nested: Set<string> | null, cols:
       const itemPath = path.concat(key).join(separator);
       // check key has extra fields container
       const keyExtra: StructChild | null = (nested && nested.has(itemPath)) ? {} : null;
+      debug(`> ${key} [${itemPath}] `)
       // add to extra props object
       if (hasExtra && !keyExtra) {
         if (isObj) {
+          debug('- 1.1')
           Object.assign(
             hasExtra,
             flatObject(val, null, {}, [], separator, true)
           );
         }
         else if (cols[itemPath]) {
-          acc[itemPath] = val;
+          debug('- 1.2')
+          accum[itemPath] = val;
         }
         else {
+          debug('- 1.3')
           hasExtra[key] = val;
         }
       }
       else {
         if (isObj) {
+          debug('- 2.1')
           Object.assign(
-            acc,
+            accum,
             flatObject(val, nested, cols, path.concat([key]), separator, noCheck)
           );
         }
         else if (cols[itemPath] || noCheck) {
-          acc[itemPath] = val;
+          debug('- 2.2')
+          accum[itemPath] = val;
         }
         else {
-          console.log(`!! not found path:${path.join('_')}_${key}, val:{val}`);
+          debug('- 2.3')
+          debug(`!! not found path:${path.join('_')}_${key}, val:{val}`);
         }
       }
     });
   const extra = hasExtra && unzip(hasExtra, String, String)
   const extraPath = ((<Array<string>>[]).concat(path, ['extra'])).join(separator)
   return Object.assign(
-    acc,
+    accum,
     // extra properties
     extra && { [extraPath + '.key']: extra.key, [extraPath + '.value']: extra.value } || {}
   );

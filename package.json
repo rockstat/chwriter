@@ -23,6 +23,7 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.20",
     "@types/chai": "^4.1.4",
+    "@types/debug": "^0.0.30",
     "@types/lazy.js": "^0.3.29",
     "@types/mocha": "^5.2.4",
     "@types/node": "^9.6.18",
@@ -41,6 +42,7 @@
     "ajv": "^6.4.0",
     "bluebird": "^3.5.1",
     "cctz": "^1.7.7",
+    "debug": "^3.1.0",
     "lazy.js": "^0.5.1",
     "node-fetch": "^2.1.2",
     "qs": "^6.5.1",
