@@ -38,7 +38,9 @@ clickhouse:
     td_fpid: UInt64
     # referer given from http transport layer
     td_ref: String
-
+    # extra transport data
+    td_extra.key: Array(String)
+    td_extra.value: Array(String)
 
   # tables structure
   # common tables structrute. Can be omited by custom config

@@ -36,6 +36,7 @@ class CHWriter {
                             data[prop] = rest[prop];
                         }
                     }
+                    console.log(data);
                     try {
                         data.date = cctz_1.format('%F', unix);
                         data.dateTime = cctz_1.format('%F %X', unix);
