@@ -2,8 +2,7 @@
 clickhouse:
   # which props from base message should be copied
   copy_props: ['channel', 'uid', 'name', 'service', 'projectId', 'td']
-  # data location
-  # it mean in which table write event
+  # events distribution. Format <event service>/<event name>:<table>
   destinations:
     track/default: events
     track/activity: activity
@@ -31,6 +30,14 @@ clickhouse:
     name: String
     # event dependend service
     service: String
+    # transport data / ip
+    td_ip: String
+    # transport data / user agent
+    td_ua: String
+    # simple fingerprint based on IP and UserAgent
+    td_fpid: UInt64
+    # referer given from http transport layer
+    td_ref: String
 
 
   # tables structure
@@ -42,13 +49,7 @@ clickhouse:
       _options:
         engine: MergeTree(date, (service, name, date), 8192)
     events:
-      # transport data / ip
-      td_ip: String
-      # transport data / user agent
-      td_ua: String
-      # simple fingerprint based on IP and UserAgent
-      td_fpid: UInt64
-      # full page urm
+      # full page url
       page_url: String
       # page referrer
       page_ref: String
