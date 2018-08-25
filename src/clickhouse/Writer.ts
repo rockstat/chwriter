@@ -83,7 +83,6 @@ export class CHWriter {
             data[prop] = rest[prop];
           }
         }
-        console.log(data)
         try {
           data.date = dateFormat('%F', unix);
           data.dateTime = dateFormat('%F %X', unix);
