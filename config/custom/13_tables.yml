@@ -9,3 +9,23 @@ clickhouse:
       data_gaId: String
       _options:
         extend: webhooks
+
+    some_ads_stats:
+      date: Date
+      # event datetime (UTC, server time)
+      dateTime: DateTime
+      # event timestamp (server time)
+      timestamp: UInt64
+      # rockstat project id (receives from with event)
+      projectId: UInt32
+
+      accountId: UInt64
+      campaignId: UInt64
+      adId: UInt64
+
+      clicks: UInt64
+      views: UInt64
+      sign: Int8
+      _options:
+        engine: CollapsingMergeTree(date, (accountId, date, campaignId), 8192, sign)
+
