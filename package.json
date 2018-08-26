@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "ts-node-dev -r 'tsconfig-paths/register' ./src/index.ts | pino",
+    "start:prod": "node -r 'source-map-support/register' dist/index.js",
     "build": "rimraf dist && tsc -p tsconfig.json",
-    "prod": "node -r 'source-map-support/register' dist/index.js",
     "clean": "rimraf dist",
     "lint": "tslint -c tslint.json -t stylish -p ./tsconfig.json",
     "test": "yarn run mocha -r ts-node/register test/**/*.ts",

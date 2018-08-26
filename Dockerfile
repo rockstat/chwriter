@@ -19,4 +19,4 @@ RUN yarn global add pino
 COPY . .
 RUN ln -nsf ../dist ./node_modules/@app
 
-CMD [ "node", "." ]
+CMD [ "yarn", "start:prod" ]
