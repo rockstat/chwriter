@@ -231,12 +231,12 @@ clickhouse:
       chat_id: Int64
       chat_type: String
       from_first_name: String
-      from_id: Uint64
+      from_id: UInt64
       from_is_bot: UInt8
-      from_language_code: en-US
+      from_language_code: String
       from_username: String
       text: String
-      message_id: UInt64r
+      message_id: UInt64
       update_id: String
       _options:
         extend: webhooks

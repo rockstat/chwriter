@@ -2,6 +2,7 @@
 clickhouse:
   destination:
     checkid/result: id_checks
+    rodinbot/telegram: telegram
 
   tables:
     id_checks:
