@@ -60,7 +60,7 @@ clickhouse:
       # domain/hostname of browsed page
       page_domain: String
       # http/https/etc
-      page_scheme: Enum8('' = 0, 'http' = 1, 'https' = 2, 'other' = 3, 'ws' = 4)
+      page_scheme: String
       # marketing marks
       page_query_utm_source: String
       page_query_utm_campaign: String

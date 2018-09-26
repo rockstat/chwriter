@@ -1,5 +1,7 @@
 FROM node:9
 
+LABEL band.title="ClickHouse Writer"
+
 # Env vars
 ENV TZ UTC
 ENV PORT 8080
