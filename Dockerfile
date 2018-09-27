@@ -1,37 +1,22 @@
-FROM node:9
+FROM rockstat/band-base-ts:latest
 
-LABEL band.title="ClickHouse Writer"
+LABEL band.service.version="1.1.4"
+LABEL band.service.title="Clickhouse Writer"
+LABEL band.service.def_position="3x1"
 
-# Env vars
-ENV TZ UTC
-ENV PORT 8080
-ENV LOG_LEVEL warn
-# RUN mkdir -p /app
 WORKDIR /app
-
-# Cachebuster
-ARG RELEASE=master
-# ENV NODE_ENV production
 
 COPY package.json .
 COPY yarn.lock .
 
-RUN yarn install
-# RUN yarn install --production
-RUN yarn global add pino && yarn cache clean
-COPY . .
-RUN ln -nsf ../dist ./node_modules/@app
+RUN yarn link "@rockstat/rock-me-ts" \
+  && yarn install \
+  && yarn cache clean
 
-# For container build
-RUN yarn build
+COPY . .
 ENV NODE_ENV production
 
-# Downloading latest JSLib
-# ARG LIB_VERSION=HEAD
-# ENV LIB_URL https://raw.githubusercontent.com/rockstat/jslib/$LIB_VERSION/dist/lib.js
-# ENV LIB_URL https://cdn.rstat.org/dist/dev/lib-latest.js
-# RUN curl -s $LIB_URL > web-sdk-dist/lib.js
-
-EXPOSE 8080
+RUN ln -nsf ../dist ./node_modules/@app \
+  && yarn build
 
 CMD [ "yarn", "start:prod"]

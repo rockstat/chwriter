@@ -4,7 +4,7 @@
   "description": "Rockstat clickhouse writer service",
   "main": "dist/index.js",
   "scripts": {
-    "start": "ts-node-dev -r 'tsconfig-paths/register' ./src/index.ts | pino",
+    "start:dev": "ts-node-dev -r 'tsconfig-paths/register' ./src/index.ts | pino",
     "start:prod": "node -r 'source-map-support/register' dist/index.js",
     "build": "rimraf dist && tsc -p tsconfig.json",
     "clean": "rimraf dist",
