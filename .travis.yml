@@ -6,7 +6,7 @@ branches:
   - dev
 env:
   global:
-  - PROJECT_NAME=front
+  - PROJECT_NAME=chwriter
   - ORG=rockstat
   - IMAGE_NAME=$ORG/$PROJECT_NAME
   - TAG="$( [ $TRAVIS_BRANCH == 'master' ] && echo latest || echo $TRAVIS_BRANCH )"
