@@ -1,6 +1,6 @@
 import * as Bluebird from 'bluebird';
 import fetch from 'node-fetch';
-import { unlink, writeFile } from 'fs';
+import * as fs from 'fs';
 import * as qs from 'qs';
 import { Deps } from '@app/AppServer';
 import { Logger, MetricsCollector, MeterFacade } from '@rockstat/rock-me-ts';
@@ -10,8 +10,10 @@ import { CHBufferDust, CHQueryParams, CHWritersDict } from '../types';
 import { CHBuffer } from './CHBuffer';
 import { METHOD_POST } from '@app/constants';
 
-const unlinkAsync = Bluebird.promisify(unlink);
-const writeFileAsync = Bluebird.promisify(writeFile);
+const fsAsync: { [k: string]: (...args: any[]) => Promise<any> } = Bluebird.promisifyAll(fs) as any;
+const { unlinkAsync, writeFileAsync } = fsAsync
+// const unlinkAsync = Bluebird.promisify(unlink);
+// const writeFileAsync = Bluebird.promisify(writeFile);
 
 /**
  * Base ClickHouse lib.
@@ -133,7 +135,7 @@ export class CHClient {
   exceptWrite(dust: CHBufferDust) {
     const fn = `${this.options.emergency_dir}/${dust.time}.json`;
     writeFileAsync(fn, dust.buffer)
-      .then(_ => this.log.warn(`saved emergency file: ${fn}`))
+      .then(() => this.log.warn(`saved emergency file: ${fn}`))
       .catch(error => this.log.error(`cant create emergency ${fn}`));
   }
 

@@ -66,10 +66,11 @@ export class CHWriter {
    * Write data to ClickHouse
    * @param msg BaseIncomingMessage
    */
-  write = (msg: HandyCHRecord) => {
+  write = async (msg: HandyCHRecord) => {
     this.meter.tick('ch.write.called')
     const { time, ...rest } = msg;
     const unix = Math.round(time / 1000);
+
     if ('service' in rest && 'name' in rest) {
       const nameKey = msg.name.toLowerCase().replace(/\s/g, '_');
       const table = this.dest[`${rest.service}/${nameKey}`]
@@ -98,5 +99,6 @@ export class CHWriter {
         console.log(isObject(rest.data), 'data' in rest)
       }
     }
+    return {};
   }
 }
