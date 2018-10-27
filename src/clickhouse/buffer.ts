@@ -1,4 +1,4 @@
-import { CHBufferWriterOpts, CHBufferDust } from '../types';
+import { CHBufferWriterOpts, CHBufferDust } from '@app/types';
 
 /**
  * Custom JSON filter for ClickHouse adaptation

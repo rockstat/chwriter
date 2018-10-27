@@ -5,7 +5,7 @@ import { DefaultDict, defaultDict } from '@app/struct/DefaultDict';
 import { CHTableCols, CHTableOptions, CHConfig } from '@app/types';
 import { Deps } from '@app/AppServer';
 import { Logger } from '@rockstat/rock-me-ts';
-import { CHClient } from './CHClient';
+import { CHClient } from '@app/clickhouse/client';
 
 /**
  * Make create table SQL query
@@ -86,7 +86,7 @@ export class CHSync {
     this.log.info({
       tables: this.tablesCols.keys().join(', '),
     }, 'Discovered');
-    for(const [tname, tcols] of this.tablesCols.entries()){
+    for (const [tname, tcols] of this.tablesCols.entries()) {
       this.log.debug(`table: ${tname}: %s `, Object.keys(tcols))
     }
   }
@@ -95,7 +95,7 @@ export class CHSync {
    * Run syncronization procedure
    */
   async sync(): Promise<void> {
-    const { tables, base, sync } = this.options;
+    const { tables, sync } = this.options;
     this.log.info('initial discover...');
     await this.discover();
     if (sync !== true) {
@@ -114,9 +114,10 @@ export class CHSync {
       }
       const schemaCols = Object.assign(
         {},
-        base,
         customCols
       );
+      // don't handle abstract tables
+      if (_options.abstract) continue;
       // creating table
       if (!exists) {
         const query = showCreateTable(table, schemaCols, _options);

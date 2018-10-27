@@ -28,6 +28,7 @@
     "@types/mocha": "^5.2.4",
     "@types/node": "^10.11.2",
     "@types/qs": "^6.5.1",
+    "@types/require-dir": "^1.0.0",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
     "rimraf": "^2.6.2",
@@ -47,6 +48,7 @@
     "node-fetch": "^2.1.2",
     "qs": "^6.5.1",
     "reflect-metadata": "^0.1.12",
+    "require-dir": "^1.1.0",
     "source-map-support": "^0.5.5",
     "xxhash": "^0.2.4"
   }

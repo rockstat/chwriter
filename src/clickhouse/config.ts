@@ -1,4 +1,4 @@
-import {CHConfig} from '../types'
+import {CHConfig} from '@app/types'
 
 
 export class CHConfigHandler {

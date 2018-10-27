@@ -70,22 +70,31 @@ export class AppServer {
       log,
       config,
       meter
-    });
-    this.log = log.for(this);
-    this.log.info('Starting service');
-
-    // setup Redis
-    const redisFactory = this.deps.redisFactory = new RedisFactory({ log, meter, ...config.redis });
-    // Setup RPC
-    const channels = [config.rpc.name, BROADCAST];
-    const rpcOptions: AgnosticRPCOptions = { channels, redisFactory, log, meter, ...config.rpc }
-    this.rpcAdaptor = this.deps.rpcAdaptor = new RPCAdapterRedis(rpcOptions);
-    this.rpc = this.deps.rpc = new RPCAgnostic(rpcOptions);
-    this.rpc.setup(this.rpcAdaptor);
-    this.chw = new CHWriter(this.deps);
-    this.setup().then((() => {
-      this.log.info('Setup completed');
-    }));
+    })
+    try {
+      this.log = log.for(this);
+      this.log.info('Starting service');
+      // setup Redis
+      const redisFactory = this.deps.redisFactory = new RedisFactory({ log, meter, ...config.redis });
+      // Setup RPC
+      const channels = [config.rpc.name, BROADCAST]
+      const rpcOptions: AgnosticRPCOptions = { channels, redisFactory, log, meter, ...config.rpc }
+      this.rpcAdaptor = this.deps.rpcAdaptor = new RPCAdapterRedis(rpcOptions);
+      this.rpc = this.deps.rpc = new RPCAgnostic(rpcOptions);
+      this.rpc.setup(this.rpcAdaptor);
+      this.chw = new CHWriter(this.deps);
+    } catch (exc) {
+      this.log.error(exc);
+      this.stop();
+    }
+    this.setup()
+      .then((() => {
+        this.log.info('Setup completed');
+      }))
+      .catch(exc => {
+        this.log.error(exc);
+        this.stop();
+      });
   }
 
   /**
@@ -100,13 +109,13 @@ export class AppServer {
       this.rpc.notify(SERVICE_DIRECTOR, METHOD_IAMALIVE, { name: this.name })
     };
     setTimeout(aliver, 500);
-    setInterval(aliver, 5*1000);
+    setInterval(aliver, 5 * 1000);
   }
 
   /**
    * Graceful stot
    */
-  private onStop() {
+  private stop() {
     this.log.info('Stopping...');
     process.exit(0)
   }
@@ -116,11 +125,11 @@ export class AppServer {
    */
   private attachSignals() {
     // Handles normal process termination.
-    process.on('exit', () => this.onStop());
+    process.on('exit', () => this.stop());
     // Handles `Ctrl+C`.
-    process.on('SIGINT', () => this.onStop());
+    process.on('SIGINT', () => this.stop());
     // Handles `kill pid`.
-    process.on('SIGTERM', () => this.onStop());
+    process.on('SIGTERM', () => this.stop());
   }
 }
 

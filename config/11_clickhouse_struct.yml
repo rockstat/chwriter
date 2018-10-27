@@ -9,47 +9,52 @@ clickhouse:
     track/scroll: activity
     other: webhooks
 
-  # common tables columnts
-  # all tables by default implements this cols
-  base:
-    # unique event id
-    id: UInt64
-    # rockstat user id
-    uid: UInt64
-    # event date (UTC, server time)
-    date: Date
-    # event datetime (UTC, server time)
-    dateTime: DateTime
-    # event timestamp (server time)
-    timestamp: UInt64
-    # received via
-    channel: String
-    # rockstat project id (receives from with event)
-    projectId: UInt32
-    # event name
-    name: String
-    # event dependend service
-    service: String
-    # transport data / ip
-    td_ip: String
-    # transport data / user agent
-    td_ua: String
-    # simple fingerprint based on IP and UserAgent
-    td_fpid: UInt64
-    # referer given from http transport layer
-    td_ref: String
-    # extra transport data
-    td_extra.key: Array(String)
-    td_extra.value: Array(String)
 
   # tables structure
   # common tables structrute. Can be omited by custom config
   tables:
+    # common tables columnts
+    # all tables by default implements this cols
+    base:
+      # unique event id
+      id: UInt64
+      # rockstat user id
+      uid: UInt64
+      # event date (UTC, server time)
+      date: Date
+      # event datetime (UTC, server time)
+      dateTime: DateTime
+      # event timestamp (server time)
+      timestamp: UInt64
+      # received via
+      channel: String
+      # rockstat project id (receives from with event)
+      projectId: UInt32
+      # event name
+      name: String
+      # event dependend service
+      service: String
+      # transport data / ip
+      td_ip: String
+      # transport data / user agent
+      td_ua: String
+      # simple fingerprint based on IP and UserAgent
+      td_fpid: UInt64
+      # referer given from http transport layer
+      td_ref: String
+      # extra transport data
+      td_extra.key: Array(String)
+      td_extra.value: Array(String)
+      _options:
+        abstract: true
+
     webhooks:
       extra.key: Array(String)
       extra.value: Array(String)
       _options:
+        extend: base
         engine: MergeTree(date, (service, name, date), 8192)
+
     events:
       # full page url
       page_url: String
@@ -221,6 +226,7 @@ clickhouse:
       perf_ce: Int16
       ### table options
       _options:
+        extend: base
         engine: MergeTree(date, (intHash32(uid), date), 8192)
 
     activity:

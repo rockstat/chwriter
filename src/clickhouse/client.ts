@@ -6,8 +6,8 @@ import { Deps } from '@app/AppServer';
 import { Logger, MetricsCollector, MeterFacade } from '@rockstat/rock-me-ts';
 import { parse as urlParse } from 'url';
 import { CHConfig } from '@app/types';
-import { CHBufferDust, CHQueryParams, CHWritersDict } from '../types';
-import { CHBuffer } from './CHBuffer';
+import { CHBufferDust, CHQueryParams, CHWritersDict } from '@app/types';
+import { CHBuffer } from '@app/clickhouse/buffer';
 import { METHOD_POST } from '@app/constants';
 
 const fsAsync: { [k: string]: (...args: any[]) => Promise<any> } = Bluebird.promisifyAll(fs) as any;

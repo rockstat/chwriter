@@ -1,12 +1,13 @@
 import { Deps } from "@app/AppServer";
 import { Logger, Meter } from "@rockstat/rock-me-ts";
 import { CHConfig, HandyCHRecord } from "@app/types";
-import { CHClient } from "./CHClient";
-import { CHSync } from "./CHSync";
-import { CHConfigHandler } from "./CHConfig";
+import { CHClient } from "@app/clickhouse/client";
+import { CHSync } from "@app/clickhouse/sync";
+import { CHConfigHandler } from "@app/clickhouse/config";
 import { format as dateFormat } from 'cctz';
 import { isObject } from '@app/helpers/object';
 import { flatObject } from '@app/helpers/object-flatten';
+import { CHMigrate } from "@app/clickhouse/migrate";
 
 /**
  * Main writer class. Runs other nessesary components
@@ -19,6 +20,7 @@ export class CHWriter {
   initialized: boolean = false;
   chc: CHClient;
   chs: CHSync;
+  chm: CHMigrate;
   copyProps: string[];
   dest: CHConfig['destinations']
   /**
@@ -32,6 +34,7 @@ export class CHWriter {
     this.options = CHConfigHandler.extend(config.get('clickhouse'));
     this.dest = this.options.destinations;
     this.chc = new CHClient(deps);
+    this.chm = new CHMigrate(this.options, this.chc, deps)
     this.chs = new CHSync(this.options, this.chc, deps);
     this.copyProps = this.options.copy_props;
     // main firmatter
@@ -56,6 +59,7 @@ export class CHWriter {
     if (this.initialized) {
       throw new Error('Already initialized');
     }
+    await this.chm.run();
     await this.chs.sync();
     await this.chc.init();
     this.initialized = true;
