@@ -7,7 +7,6 @@
     "experimentalDecorators": true,
     "strictNullChecks": true,
     "sourceMap": true,
-    "declaration": true,
     "pretty": true,
     "allowJs": true,
     "allowUnreachableCode": true,
