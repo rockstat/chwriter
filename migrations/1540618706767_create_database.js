@@ -1,3 +1,2 @@
-
-export const up = async (client) => {
+module.exports.up = async (client) => {
 }

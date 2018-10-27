@@ -1,15 +1,17 @@
 import { Deps } from "@app/AppServer";
-import { migrationsUp } from "../../migrations";
 import { CHClient } from "@app/clickhouse/client";
 import { CHConfig } from "@app/types";
 import { Logger } from "@rockstat/rock-me-ts";
 
-console.log(migrationsUp)
+import migrationsUp = require("../../migrations");
 
 export interface MigrationRecord {
   name: string;
   timestamp: string;
 }
+
+export type MigrationFn = (client: CHClient) => Promise<any>;
+export type MigrationFile = [string, MigrationFn]
 
 export class CHMigrate {
   client: CHClient;
@@ -37,7 +39,8 @@ export class CHMigrate {
     const state: Array<string> = JSON.parse(res).data.map((row: MigrationRecord) => row.name);
 
     this.log.info('Executing migrations')
-    for (const [name, fn] of Object.entries(migrationsUp)) {
+
+    for (const [name, fn] of <Array<MigrationFile>>Object.entries(migrationsUp)) {
       if (!state.includes(name)) {
         const now = +new Date();
         this.log.info(`---> ${name}`);
@@ -45,5 +48,6 @@ export class CHMigrate {
         this.client.execute(`INSERT INTO ${this.db_table} (name, timestamp) VALUES ('${name}', ${now})`);
       }
     }
+
   }
 }
