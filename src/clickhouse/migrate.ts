@@ -2,8 +2,12 @@ import { Deps } from "@app/AppServer";
 import { CHClient } from "@app/clickhouse/client";
 import { CHConfig } from "@app/types";
 import { Logger } from "@rockstat/rock-me-ts";
+import { sync as globSync } from 'glob';
+import { resolve, join, basename } from 'path';
+import { readFileSync } from 'fs';
+import { safeLoad } from 'js-yaml';
 
-import migrationsUp = require("../../migrations");
+
 
 export interface MigrationRecord {
   name: string;
@@ -19,10 +23,12 @@ export class CHMigrate {
   migrationsTable: string = 'migrations';
   database: string = 'stats';
   db_table: string;
+  migrationsDir: string;
   constructor(option: CHConfig, client: CHClient, deps: Deps) {
     this.client = client;
     this.db_table = `${this.database}.${this.migrationsTable}`;
     this.log = deps.log.for(this);
+    this.migrationsDir = resolve(join(__dirname, '..', '..', 'migrations'));
   }
 
   async run() {
@@ -39,15 +45,20 @@ export class CHMigrate {
     const state: Array<string> = JSON.parse(res).data.map((row: MigrationRecord) => row.name);
 
     this.log.info('Executing migrations')
+    const parts = globSync(
+      `${this.migrationsDir}/**/*.yml`, { nosort: true });
 
-    for (const [name, fn] of <Array<MigrationFile>>Object.entries(migrationsUp)) {
+    for (const fn of parts) {
+      const name = basename(fn);
       if (!state.includes(name)) {
         const now = +new Date();
+        const items: Array<string> = safeLoad(readFileSync(fn).toString());
         this.log.info(`---> ${name}`);
-        await fn(this.client);
+        for(const item of items){
+          await this.client.execute(item);
+        }
         this.client.execute(`INSERT INTO ${this.db_table} (name, timestamp) VALUES ('${name}', ${now})`);
       }
     }
-
   }
 }

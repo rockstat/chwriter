@@ -20,10 +20,11 @@
       "node_modules/@rockstat/rock-me-ts/@types",
       "@types"
     ],
-    "baseUrl": "./src/",
+    "baseUrl": "./",
     "sourceRoot": "./src/",
     "paths": {
-      "@app/*": ["./*"]
+      "@app/*": ["./src/*"],
+      "@migrations/*": ["./*"]
     }
   },
   "include": [
