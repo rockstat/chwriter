@@ -68,7 +68,5 @@ export class CHMigrate {
         }
       }
     }
-    console.log(migrations)
-    process.exit(0)
   }
 }
