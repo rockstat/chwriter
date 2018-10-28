@@ -15,9 +15,8 @@ export class CHBuffer {
   buffers: Array<Buffer>
 
   /**
-   * Just constructor, nothing specoal
-   * @param param0
-   * @param param1
+   * Created new instanse of buffer writter
+   * @param param0 CHBufferWriterOpts struct
    */
   constructor({ table }: CHBufferWriterOpts) {
     this.table = table;

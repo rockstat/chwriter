@@ -3,17 +3,18 @@ import fetch from 'node-fetch';
 import * as fs from 'fs';
 import * as qs from 'qs';
 import { Deps } from '@app/AppServer';
-import { Logger, MetricsCollector, MeterFacade } from '@rockstat/rock-me-ts';
-import { parse as urlParse } from 'url';
-import { CHConfig } from '@app/types';
+import { Logger, MeterFacade } from '@rockstat/rock-me-ts';
+import { CHConfig, HandyCHRecord } from '@app/types';
 import { CHBufferDust, CHQueryParams, CHWritersDict } from '@app/types';
 import { CHBuffer } from '@app/clickhouse/buffer';
 import { METHOD_POST } from '@app/constants';
+import { dsnParse } from './lib';
 
 const fsAsync: { [k: string]: (...args: any[]) => Promise<any> } = Bluebird.promisifyAll(fs) as any;
 const { unlinkAsync, writeFileAsync } = fsAsync
 // const unlinkAsync = Bluebird.promisify(unlink);
 // const writeFileAsync = Bluebird.promisify(writeFile);
+
 
 /**
  * Base ClickHouse lib.
@@ -30,20 +31,24 @@ export class CHClient {
   writers: CHWritersDict = {};
   timeout: number = 5000;
   emergency_dir: string;
-  meter: MeterFacade
+  meter: MeterFacade;
+  defaultOptions = {
+    uploadInterval: 5,
+    dsn: 'http://default@localhost:8123'
+  };
 
   constructor(deps: Deps) {
     const { log, config, meter } = deps;
-    const options = this.options = config.get('clickhouse');
-    const { dsn } = options;
+    this.options = { ...this.defaultOptions, ...config.get('clickhouse') };
+    const { dsn, uploadInterval } = this.options;
     this.log = log.for(this);
-    this.log.info('Starting ClickHouse client', { uploadInterval: options.uploadInterval, dsn: dsn });
-    const { port, hostname, protocol, path, auth } = urlParse(dsn);
-    this.db = (path || '').slice(1);
+
+    this.log.info('Initializing ClickHouse client', { uploadInterval, dsn });
+    const { port, hostname, protocol, db, user, password } = dsnParse(dsn);
+    this.db = db;
     this.params = { database: this.db };
     this.meter = meter;
-    if (auth) {
-      const [user, password] = auth.split(':');
+    if (user) {
       this.params = { user, password, ...this.params };
     }
     this.url = `${protocol}//${hostname}:${port}`;
@@ -59,6 +64,16 @@ export class CHClient {
     }
     return this.writers[table];
   }
+
+  /**
+   * Write object to the ClickHouse database
+   * @param table table name in CH
+   * @param struct Writable object
+   */
+  push(table: string, struct: HandyCHRecord): void {
+    this.getWriter(table).push(struct)
+  }
+
   /**
    * Setup upload interval
    */
@@ -99,15 +114,11 @@ export class CHClient {
   async query(query: string): Promise<string | undefined> {
     const queryUrl = this.url + '/?' + qs.stringify(Object.assign({}, this.params, { query }));
     let responseBody;
-    // try {
     const res = await fetch(queryUrl, { timeout: this.timeout });
     responseBody = await res.text();
     if (!res.ok) {
       throw new Error(responseBody);
     }
-    // } catch (error) {
-    //   this.log.error('CH write error', error);
-    // }
     return responseBody;
   }
 
@@ -147,6 +158,7 @@ export class CHClient {
       .filter(e => !!e[1])
       .map(e => e[0]).sort();
     for (const [i, table] of tables.entries()) {
+      // Delay writing of tables
       setTimeout(() => {
         const writer = this.writers[table];
         this.writers[table] = undefined;

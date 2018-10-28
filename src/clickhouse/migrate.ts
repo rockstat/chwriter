@@ -3,7 +3,7 @@ import { CHClient } from "@app/clickhouse/client";
 import { CHConfig } from "@app/types";
 import { Logger } from "@rockstat/rock-me-ts";
 import { sync as globSync } from 'glob';
-import { resolve, join, basename } from 'path';
+import { resolve, join, basename, parse as pathParse } from 'path';
 import { readFileSync } from 'fs';
 import { safeLoad } from 'js-yaml';
 
@@ -14,14 +14,18 @@ export interface MigrationRecord {
   timestamp: string;
 }
 
+const fnName = (fullpath: string) => pathParse(fullpath).name;
+const bnSort = (fn1: string, fn2: string) => fnName(fn1) >= fnName(fn2) ? 1 : -1;
+
+
 export type MigrationFn = (client: CHClient) => Promise<any>;
 export type MigrationFile = [string, MigrationFn]
 
 export class CHMigrate {
   client: CHClient;
   log: Logger;
-  migrationsTable: string = 'migrations';
-  database: string = 'stats';
+  migrationsTable: string = '"migrations"';
+  database: string = '"stats"';
   db_table: string;
   migrationsDir: string;
   constructor(option: CHConfig, client: CHClient, deps: Deps) {
@@ -31,34 +35,40 @@ export class CHMigrate {
     this.migrationsDir = resolve(join(__dirname, '..', '..', 'migrations'));
   }
 
+  /**
+   * Read migrations from migrations folder, order by filename (without folder and extension)
+   */
   async run() {
 
-    this.log.info('Ensure database exists');
+    this.log.info('Ensuring the database and the migrations exists');
     await this.client.execute(`CREATE DATABASE IF NOT EXISTS ${this.database}`);
     await this.client.execute(`CREATE TABLE IF NOT EXISTS ${this.db_table} (name String, timestamp UInt64) ENGINE = Log`);
-
-    this.log.info('Fetching migrations state');
-    const res = (await this.client.query(`SELECT * FROM ${this.db_table} FORMAT JSON`));
-    if (!res) {
+    this.log.info('Fetching migrations records');
+    const rawState = (await this.client.query(`SELECT * FROM ${this.db_table} FORMAT JSON`));
+    if (!rawState) {
       throw new Error('Error during loading migrations list');
     }
-    const state: Array<string> = JSON.parse(res).data.map((row: MigrationRecord) => row.name);
-
+    const state: Array<string> = JSON.parse(rawState).data.map((row: MigrationRecord) => row.name);
     this.log.info('Executing migrations')
-    const parts = globSync(
-      `${this.migrationsDir}/**/*.yml`, { nosort: true });
-
-    for (const fn of parts) {
-      const name = basename(fn);
+    const migrations = globSync(`${this.migrationsDir}/**/*.yml`).sort(bnSort);
+    for (const fn of migrations) {
+      const name = fnName(fn);
       if (!state.includes(name)) {
         const now = +new Date();
-        const items: Array<string> = safeLoad(readFileSync(fn).toString());
-        this.log.info(`---> ${name}`);
-        for(const item of items){
-          await this.client.execute(item);
+        const records: Array<string> = safeLoad(readFileSync(fn).toString());
+        if (!Array.isArray(records)) {
+          this.log.info(`--- wrong migration format ---> ${name}`);
+        } else {
+          this.log.info(`--- applying ---> ${name}`);
+          for (const record of records) {
+            await this.client.execute(record);
+          }
+          // write migration state
+          await this.client.execute(`INSERT INTO ${this.db_table} (name, timestamp) VALUES ('${name}', ${now})`);
         }
-        this.client.execute(`INSERT INTO ${this.db_table} (name, timestamp) VALUES ('${name}', ${now})`);
       }
     }
+    console.log(migrations)
+    process.exit(0)
   }
 }

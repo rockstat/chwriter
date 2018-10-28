@@ -6,3 +6,4 @@
 /emergency
 /config/custom
 /dist
+/migrations/custom/*
