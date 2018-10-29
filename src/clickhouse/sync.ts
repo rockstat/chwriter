@@ -108,8 +108,9 @@ export class CHSync {
       let { _options, ...customCols } = conf;
       // Handling inheritance
       if (_options && _options.extend && tables[_options.extend]) {
-        const { _options: inhOptions, ...ihnCustomCols } = tables[_options.extend];
-        _options = Object.assign({}, inhOptions, _options);
+        const { _options: extOptions, ...ihnCustomCols } = tables[_options.extend];
+        const { abstract, ...__options } = extOptions;
+        _options = Object.assign({}, __options, _options);
         customCols = Object.assign({}, ihnCustomCols, customCols);
       }
       const schemaCols = Object.assign(
