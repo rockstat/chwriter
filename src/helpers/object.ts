@@ -10,9 +10,21 @@ export const isObject = (o: any) => {
   return (!!o && typeof o === 'object' && Object.prototype.toString.call(o) === '[object Object]')
 };
 
+export const isArray = (inp: any) => {
+  return (!!inp && typeof inp === 'object' && Array.isArray(inp))
+};
+
+
+export const arrayToObject = (list: Array<[string, any]>) => {
+  const result:{[k:string]:any} = {}
+  for(let [k, v] of list){
+    result[k] = v
+  }
+  return result;
+}
 
 export type ZipFilter<T> = (x: any) => T;
-export type ZipObject<V> = { [k: string]: V };
+export type ZipObject<V> = Array<[string, any]>;
 
 /**
  * Function implements zip algorithm with filtration
@@ -21,7 +33,7 @@ export function unzip<V>(obj: ZipObject<V>, keyFilter: ZipFilter<string>, valFil
   const key = [];
   const value = [];
   if (obj) {
-    for (let [k, v] of Object.entries(obj)) {
+    for (let [k, v] of obj) {
       if (keyFilter) {
         k = keyFilter(k);
       }

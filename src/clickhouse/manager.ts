@@ -5,7 +5,7 @@ import { CHClient } from "@app/clickhouse/client";
 import { CHSync } from "@app/clickhouse/sync";
 import { CHConfigHandler } from "@app/clickhouse/config";
 import { format as dateFormat } from 'cctz';
-import { isObject } from '@app/helpers/object';
+import { isObject, arrayToObject } from '@app/helpers/object';
 import { flatObject } from '@app/helpers/object-flatten';
 import { CHMigrate } from "@app/clickhouse/migrate";
 
@@ -47,7 +47,10 @@ export class CHWriter {
         });
         throw new Error('wrong table config');
       }
-      return flatObject(record, nested, cols);
+      const extra: Array<[string, any]> = []
+      const obj = arrayToObject(flatObject(record, nested, cols, [], '_', extra));
+
+      return obj
     };
   }
 
@@ -81,6 +84,9 @@ export class CHWriter {
         || this.dest[`${rest.service}/default`]
         || this.dest[`other`];
 
+      if (!table) {
+        return {}
+      }
       if ('data' in rest && isObject(rest.data)) {
         const data = rest.data;
         for (let prop of this.copyProps) {
