@@ -23,7 +23,7 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.20",
     "@types/chai": "^4.1.4",
-    "@types/debug": "^0.0.30",
+    "@types/debug": "^0.0.31",
     "@types/js-yaml": "^3.11.2",
     "@types/lazy.js": "^0.3.29",
     "@types/mocha": "^5.2.4",
