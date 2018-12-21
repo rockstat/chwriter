@@ -97,6 +97,7 @@ clickhouse:
       sess_marks_utm_term: String
       sess_marks_has_gclid: Int8 DEFAULT -1
       sess_marks_has_yclid: Int8 DEFAULT -1
+      sess_marks_has_fbclid: Int8 DEFAULT -1
       # extra marks
       sess_marks_extra.key: Array(String)
       sess_marks_extra.value: Array(String)
