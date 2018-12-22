@@ -257,3 +257,10 @@ clickhouse:
       data: String
       _options:
         engine: MergeTree(date, (source, date, level), 8192)
+
+
+    migrations:
+      name: String
+      timestamp: UInt64
+      _options:
+        engine: Log()
