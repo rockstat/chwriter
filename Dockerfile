@@ -1,6 +1,6 @@
 FROM rockstat/band-base-ts:latest
 
-LABEL band.service.version="1.1.6"
+LABEL band.service.version="1.1.7"
 LABEL band.service.title="Clickhouse Writer"
 LABEL band.service.def_position="3x1"
 
