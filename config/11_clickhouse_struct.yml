@@ -233,6 +233,12 @@ clickhouse:
     activity:
       _options:
         extend: events
+    
+      cid: str
+      name: str
+      source: int
+      size: int
+      message: str
 
     logs:
       # unique event id
@@ -240,23 +246,20 @@ clickhouse:
       # event date (UTC, server time)
       date: Date
       # event datetime (UTC, server time)
-      dateTime: DateTime
+      ts: DateTime
+      # container id
+      cid: String
       # source service
-      service: String
+      name: String
       # stdout / stderr
       source: String
       # standard level number 10=debug 20=info etc..]
-      level: Int8
-      # name of level
-      levelName: String
-      # logger name
-      logger: String
-      # message part
+      # Message size
+      size: UInt32
+      # Log message
       message: String
-      # structured data part
-      data: String
       _options:
-        engine: MergeTree(date, (source, date, level), 8192)
+        engine: MergeTree(date, (date, id), 8192)
 
 
     migrations:
