@@ -234,11 +234,11 @@ clickhouse:
       _options:
         extend: events
     
-      cid: str
-      name: str
-      source: int
-      size: int
-      message: str
+      # cid: str
+      # name: str
+      # source: int
+      # size: int
+      # message: str
 
     logs:
       # unique event id
