@@ -74,6 +74,7 @@ clickhouse:
       page_query_utm_term: String
       page_query_gclid: String
       page_query_yclid: String
+      page_query_fbclid: String
       # extra query params
       page_query_extra.key: Array(String)
       page_query_extra.value: Array(String)
@@ -98,6 +99,9 @@ clickhouse:
       sess_marks_has_gclid: Int8 DEFAULT -1
       sess_marks_has_yclid: Int8 DEFAULT -1
       sess_marks_has_fbclid: Int8 DEFAULT -1
+      sess_marks_gclid: String
+      sess_marks_yclid: String
+      sess_marks_fbclid: String
       # extra marks
       sess_marks_extra.key: Array(String)
       sess_marks_extra.value: Array(String)
