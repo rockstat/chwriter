@@ -1,7 +1,7 @@
 ---
 clickhouse:
   # which props from base message should be copied
-  copy_props: ['channel', 'uid', 'name', 'service', 'projectId', 'td']
+  copy_props: ['id', 'channel', 'uid', 'name', 'service', 'projectId', 'td']
   # events distribution. Format <event service>/<event name>:<table>
   destinations:
     track/default: events
