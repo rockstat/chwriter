@@ -7,6 +7,8 @@ clickhouse:
     track/default: events
     track/activity: activity
     track/scroll: activity
+    track/ping: ping
+    track/hello: ping
     other: webhooks
 
 
@@ -265,9 +267,14 @@ clickhouse:
       _options:
         engine: MergeTree(date, (date, id), 8192)
 
+    ping:
+      id__: String
+      _options:
+        extend: webhooks
 
     migrations:
       name: String
       timestamp: UInt64
       _options:
         engine: Log()
+
