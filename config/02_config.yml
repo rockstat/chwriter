@@ -17,7 +17,7 @@ redis:
 
 clickhouse:
   enabled: true
-  dsn: <%= env.CHS_DSN %>
+  dsn: <%= env.CH_DSN %>
   #seconds
   uploadInterval: 5
   sync: true
