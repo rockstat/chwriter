@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@rockstat/rock-me-ts": "^1",
-    "ajv": "^6.4.0",
+    "ajv": "^6.12.3",
     "bluebird": "^3.5.1",
     "cctz": "^1.7.7",
     "debug": "^4.0.1",
