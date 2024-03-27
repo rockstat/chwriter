@@ -2,7 +2,7 @@ ARG BASE_CONTAINER=rockstat/band-base-ts:ng
 
 FROM $BASE_CONTAINER
 
-LABEL band.service.version="2.1.2"
+LABEL band.service.version="2.1.3"
 LABEL band.service.title="Clickhouse Writer"
 LABEL band.service.def_position="3x1"
 
