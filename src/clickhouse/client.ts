@@ -1,5 +1,6 @@
 import * as Bluebird from 'bluebird';
-import fetch from 'node-fetch';
+// import fetch from 'node-fetch';
+
 import * as fs from 'fs';
 import * as qs from 'qs';
 import { Deps } from '@app/AppServer';
@@ -40,8 +41,12 @@ export class CHClient {
   constructor(deps: Deps) {
     const { log, config, meter } = deps;
     this.options = { ...this.defaultOptions, ...config.get('clickhouse') };
+
+    
     const { dsn, uploadInterval } = this.options;
     this.log = log.for(this);
+
+    console.log('Default options', {opts: this.options});
 
     this.log.info('Initializing ClickHouse client', { uploadInterval, dsn });
     const { port, hostname, protocol, db, user, password } = dsnParse(dsn);
@@ -95,7 +100,7 @@ export class CHClient {
     const res = await fetch(queryUrl, {
       method: METHOD_POST,
       body: body,
-      timeout: this.timeout
+      // timeout: this.timeout
     });
     responseBody = await res.text();
     if (!res.ok) {
@@ -114,7 +119,8 @@ export class CHClient {
   async query(query: string): Promise<string | undefined> {
     const queryUrl = this.url + '/?' + qs.stringify(Object.assign({}, this.params, { query }));
     let responseBody;
-    const res = await fetch(queryUrl, { timeout: this.timeout });
+    // const res = await fetch(queryUrl, { timeout: this.timeout });
+    const res = await fetch(queryUrl);
     responseBody = await res.text();
     if (!res.ok) {
       throw new Error(responseBody);
@@ -193,7 +199,7 @@ export class CHClient {
         res = await fetch(queryUrl, {
           method: 'POST',
           body: dust.buffer,
-          timeout: this.timeout
+          // timeout: this.timeout
         });
         if (!res.ok) {
           const body = await res.text();

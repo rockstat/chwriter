@@ -5,7 +5,7 @@ import { Logger } from "@rockstat/rock-me-ts";
 import { sync as globSync } from 'glob';
 import { resolve, join, basename, parse as pathParse } from 'path';
 import { readFileSync } from 'fs';
-import { safeLoad } from 'js-yaml';
+import { load as yamlLoad } from 'js-yaml';
 
 
 
@@ -55,7 +55,9 @@ export class CHMigrate {
       const name = fnName(fn);
       if (!state.includes(name)) {
         const now = +new Date();
-        const records: Array<string> = safeLoad(readFileSync(fn).toString());
+        const records = yamlLoad(readFileSync(fn).toString());
+
+        this.log.debug('loaded migrations', records)
         if (!Array.isArray(records)) {
           this.log.info(`--- wrong migration format ---> ${name}`);
         } else {

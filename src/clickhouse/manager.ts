@@ -4,7 +4,9 @@ import { CHConfig, HandyCHRecord } from "@app/types";
 import { CHClient } from "@app/clickhouse/client";
 import { CHSync } from "@app/clickhouse/sync";
 import { CHConfigHandler } from "@app/clickhouse/config";
-import { format as dateFormat } from 'cctz';
+// import { format as dateFormat } from 'cctz';
+import { formatDate, formatDateTime } from '@app/helpers/date-format';
+
 import { isObject, arrayToObject } from '@app/helpers/object';
 import { flatObject } from '@app/helpers/object-flatten';
 import { CHMigrate } from "@app/clickhouse/migrate";
@@ -76,7 +78,7 @@ export class CHWriter {
   write = async (msg: HandyCHRecord) => {
     this.meter.tick('ch.write.called')
     const { time, ...rest } = msg;
-    const unix = Math.round(time / 1000);
+    // const unix = Math.round(time / 1000);
 
     if ('service' in rest && 'name' in rest) {
       const nameKey = msg.name.toLowerCase().replace(/\s/g, '_');
@@ -95,8 +97,10 @@ export class CHWriter {
           }
         }
         try {
-          data.date = dateFormat('%F', unix);
-          data.dateTime = dateFormat('%F %X', unix);
+          // data.date = dateFormat('%F', unix);
+          data.date = formatDate(time);
+          // data.dateTime = dateFormat('%F %X', unix);
+          data.dateTime = formatDateTime(time);
           data.timestamp = time;
           const row = this.formatter(table, data);
           this.chc.getWriter(table).push(row);
