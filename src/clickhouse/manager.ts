@@ -98,9 +98,10 @@ export class CHWriter {
         }
         try {
           // data.date = dateFormat('%F', unix);
-          data.date = formatDate(time);
+          const dt = (new Date(time)).toISOString().substring(0,19).replace('T', ' ');
+          data.date = dt.substring(0, 10);
           // data.dateTime = dateFormat('%F %X', unix);
-          data.dateTime = formatDateTime(time);
+          data.dateTime = dt;
           data.timestamp = time;
           const row = this.formatter(table, data);
           this.chc.getWriter(table).push(row);

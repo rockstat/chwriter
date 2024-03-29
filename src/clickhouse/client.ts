@@ -197,9 +197,9 @@ export class CHClient {
       let res;
       try {
         res = await fetch(queryUrl, {
+          signal: AbortSignal.timeout(this.timeout),
           method: 'POST',
           body: dust.buffer,
-          // timeout: this.timeout
         });
         if (!res.ok) {
           const body = await res.text();
