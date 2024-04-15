@@ -47,6 +47,10 @@ clickhouse:
       # extra transport data
       td_extra.key: Array(String)
       td_extra.value: Array(String)
+      # main extra
+      extra.key: Array(String)
+      extra.value: Array(String)
+      # table options
       _options:
         abstract: true
 
@@ -107,6 +111,8 @@ clickhouse:
       # extra marks
       sess_marks_extra.key: Array(String)
       sess_marks_extra.value: Array(String)
+      # source session marks | simplehash
+      sess_marksHash: String
       # session start timestamp
       sess_start: UInt64
       # referrer hostname (without www)
@@ -117,6 +123,8 @@ clickhouse:
       lib_v: Float32
       # library snippet version
       lib_sv: Float32
+      # Lib.js started at
+      lib_st: UInt64 DEFAULT 0
       # scroll doc height
       scroll_dh: UInt16
       # scroll client height
@@ -232,6 +240,7 @@ clickhouse:
       # timing.connectEnd
       perf_ce: Int16
       ### table options
+      
       _options:
         extend: base
         engine: MergeTree(date, (intHash32(uid), date), 8192)
