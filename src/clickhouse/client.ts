@@ -150,7 +150,7 @@ export class CHClient {
    * Emergincy write in file
    */
   exceptWrite(dust: CHBufferDust) {
-    const fn = `${this.options.emergency_dir}/${dust.time}.json`;
+    const fn = `${this.options.emergency_dir}/${dust.time}-${dust.table}.json`;
     writeFileAsync(fn, dust.buffer)
       .then(() => this.log.warn(`saved emergency file: ${fn}`))
       .catch(error => this.log.error(`cant create emergency ${fn}`));
