@@ -19,7 +19,7 @@ clickhouse:
   enabled: true
   dsn: <%= env.CH_DSN %>
   #seconds
-  uploadInterval: 5
+  uploadInterval: 2
   sync: true
   emergency_dir: ./emergency
 

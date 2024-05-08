@@ -18,9 +18,9 @@ clickhouse:
     # common tables columnts
     # all tables by default implements this cols
     base:
-      # unique event id
+      # unique event id. sortable
       id: UInt64
-      # rockstat user id
+      # rockstat clientID
       uid: UInt64
       # event date (UTC, server time)
       date: Date
@@ -30,24 +30,26 @@ clickhouse:
       timestamp: UInt64
       # received via
       channel: String
-      # rockstat project id (receives from with event)
+      # Project id
       projectId: UInt32
       # event name
       name: String
-      # event dependend service
+      # event dependend service / event group
       service: String
-      # transport data / ip
+      # transport data / ip addr / ipv6 or ipv4
       td_ip: String
       # transport data / user agent
       td_ua: String
       # simple fingerprint based on IP and UserAgent
       td_fpid: UInt64
-      # referer given from http transport layer
+      # Referer url
       td_ref: String
+      # Host
+      td_host: String
       # extra transport data
       td_extra.key: Array(String)
       td_extra.value: Array(String)
-      # main extra
+      # Extra data / custom data / key-value pairs
       extra.key: Array(String)
       extra.value: Array(String)
       # table options
@@ -61,7 +63,7 @@ clickhouse:
         extend: base
         engine: MergeTree(date, (service, name, date), 8192)
 
-    events:
+    # events:
       # full page url
       page_url: String
       # page referrer
@@ -84,9 +86,9 @@ clickhouse:
       # extra query params
       page_query_extra.key: Array(String)
       page_query_extra.value: Array(String)
-      # session type: (campaign/organic/referral/direct/internal/social)
+      # session type: (campaign/organic/referral/direct/internal/social/partner/webview)
       sess_type: String
-      # search/social/ads engine
+      # search/social/ads for example google,facebook or telegram
       sess_engine: String
       # user session number
       sess_num: UInt16
@@ -108,6 +110,8 @@ clickhouse:
       sess_marks_gclid: String
       sess_marks_yclid: String
       sess_marks_fbclid: String
+      sess_marks_pid: String
+      sess_marks_cid: String
       # extra marks
       sess_marks_extra.key: Array(String)
       sess_marks_extra.value: Array(String)
@@ -178,6 +182,12 @@ clickhouse:
       mmgeo_region_en: String
       mmgeo_city_ru: String
       mmgeo_city_en: String
+      # ip2location cols
+      ip2lgeo_country_iso: String
+      ip2lgeo_country_en: String
+      ip2lgeo_city_en: String
+      ip2lgeo_region_en: String
+      
       # user agent parser cols
       uaparser_is_bot: Int8
       uaparser_is_mob: Int8
@@ -200,8 +210,10 @@ clickhouse:
       user_id: String
       # google analytics client id
       user_gaId: String
+      user_ga4ClientId: String
       # yandex metrika client id
       user_ymId: String
+
       # custom user traits
       user_extra.key: Array(String)
       user_extra.value: Array(String)
