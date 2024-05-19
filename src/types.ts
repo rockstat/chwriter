@@ -38,6 +38,7 @@ export interface CHBufferDust {
   buffer: Buffer;
   fileName?: string;
   time: number;
+  count: number;
 }
 
 // CH writers

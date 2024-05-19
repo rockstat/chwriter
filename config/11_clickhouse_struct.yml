@@ -1,7 +1,7 @@
 ---
 clickhouse:
   # which props from base message should be copied
-  copy_props: ['id', 'channel', 'uid', 'name', 'service', 'projectId', 'td']
+  copy_props: ['id', 'channel', 'uid', 'name', 'service', 'source_service', 'source_name', 'projectId', 'td']
   # events distribution. Format <event service>/<event name>:<table>
   destinations:
     track/default: events
@@ -9,6 +9,7 @@ clickhouse:
     track/scroll: activity
     track/ping: ping
     track/hello: ping
+    batch/batch: batches
     other: webhooks
 
 
@@ -57,13 +58,19 @@ clickhouse:
         abstract: true
 
     webhooks:
-      extra.key: Array(String)
-      extra.value: Array(String)
       _options:
         extend: base
         engine: MergeTree(date, (service, name, date), 8192)
 
-    # events:
+    batches:
+      source_service: String
+      source_name: String
+      _options:
+        extend: base
+        engine: MergeTree(date, (service, name, date), 8192)
+
+
+    events:
       # full page url
       page_url: String
       # page referrer
@@ -213,13 +220,15 @@ clickhouse:
       user_ga4ClientId: String
       # yandex metrika client id
       user_ymId: String
-
       # custom user traits
       user_extra.key: Array(String)
       user_extra.value: Array(String)
       # extra data fields
       data_extra.key: Array(String)
       data_extra.value: Array(String)
+      # Extra data / custom data / key-value pairs
+      stored_extra.key: Array(String)
+      stored_extra.value: Array(String)
       # LocalStorage
       char_ls: Int16 DEFAULT -1
       # document.addEventListener
@@ -252,7 +261,6 @@ clickhouse:
       # timing.connectEnd
       perf_ce: Int16
       ### table options
-      
       _options:
         extend: base
         engine: MergeTree(date, (intHash32(uid), date), 8192)

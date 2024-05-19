@@ -48,7 +48,7 @@ export class CHClient {
 
     console.log('Default options', {opts: this.options});
 
-    this.log.info('Initializing ClickHouse client', { uploadInterval, dsn });
+    console.log('Initializing ClickHouse client', { uploadInterval, dsn });
     const { port, hostname, protocol, db, user, password } = dsnParse(dsn);
     this.db = db;
     this.params = { database: this.db };
@@ -206,6 +206,8 @@ export class CHClient {
           throw new Error(`body: ${body}`);
         }
         this.meter.tick('ch.upload.ok');
+        this.meter.gauge('ch.uploaded_amount', dust.count);
+
         requestTime();
       } catch (error) {
         requestTime()

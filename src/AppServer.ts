@@ -9,7 +9,7 @@ import {
   Logger,
   AppConfig,
   RPCAdapter,
-  AppStatus,
+  // AppStatus,
   MeterFacade
 } from '@rockstat/rock-me-ts';
 
@@ -49,7 +49,7 @@ export class Deps {
 export class AppServer {
   log: Logger;
   deps: Deps;
-  status: AppStatus;
+  // status: AppStatus;
   name: string;
   rpcAdaptor: RPCAdapter;
   rpc: RPCAgnostic;
@@ -63,7 +63,7 @@ export class AppServer {
     const log = new Logger(config.log);
     const meter = new Meter(config.meter);
     this.meter = meter;
-    this.status = new AppStatus();
+    // this.status = new AppStatus();
     this.name = config.rpc.name;
     this.deps = new Deps({
       id: new TheIds(),
@@ -103,13 +103,13 @@ export class AppServer {
   async setup() {
     await this.chw.init();
     this.rpc.register(BROADCAST, this.chw.write);
-    this.rpc.register(METHOD_STATUS, this.status.get);
-    const aliver = () => {
-      this.meter.tick('band.chwriter.alive')
-      this.rpc.notify(SERVICE_DIRECTOR, METHOD_IAMALIVE, { name: this.name })
-    };
-    setTimeout(aliver, 500);
-    setInterval(aliver, 5 * 1000);
+    // this.rpc.register(METHOD_STATUS, this.status.get);
+    // const aliver = () => {
+      // this.meter.tick('band.chwriter.alive')
+      // this.rpc.notify(SERVICE_DIRECTOR, METHOD_IAMALIVE, { name: this.name })
+    // };
+    // setTimeout(aliver, 500);
+    // setInterval(aliver, 5 * 1000);
   }
 
   /**
