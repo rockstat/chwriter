@@ -25,6 +25,8 @@ export class CHWriter {
   chm: CHMigrate;
   copyProps: string[];
   dest: CHConfig['destinations']
+  counterAbs: number = 0;
+  counterInterval = 1;
   /**
    *
    * @param deps DI
@@ -54,6 +56,10 @@ export class CHWriter {
 
       return obj
     };
+    setInterval(() => {
+      this.log.info({wps: Math.round(this.counterAbs/this.counterInterval)}, '1 sec rps')
+      this.counterAbs = 0;
+    }, this.counterInterval * 1000);
   }
 
   /**
@@ -76,6 +82,8 @@ export class CHWriter {
    * @param msg BaseIncomingMessage
    */
   write = async (msg: HandyCHRecord) => {
+    this.counterAbs = this.counterAbs + 1;
+
     this.meter.tick('ch.write.called')
     const { time, ...rest } = msg;
     // const unix = Math.round(time / 1000);

@@ -57,6 +57,8 @@ export class CHClient {
       this.params = { user, password, ...this.params };
     }
     this.url = `${protocol}//${hostname}:${port}`;
+
+
   }
 
   /**
@@ -206,7 +208,7 @@ export class CHClient {
           throw new Error(`body: ${body}`);
         }
         this.meter.tick('ch.upload.ok');
-        this.meter.gauge('ch.uploaded_amount', dust.count);
+        this.meter.incr('ch.uploaded_amount_counter', dust.count);
 
         requestTime();
       } catch (error) {
