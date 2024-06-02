@@ -10,7 +10,7 @@ build:
 	docker build -t chwriter .
 
 build_amd64:
-	docker buildx build --platform linux/amd64 -t chwriter .	
+	docker build --platform linux/amd64 -t chwriter .	
 
 tag-ng:
 	docker tag chwriter rockstat/chwriter:ng
