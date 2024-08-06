@@ -1,9 +1,23 @@
 ---
 clickhouse:
   # which props from base message should be copied
-  copy_props: ['id', 'channel', 'uid', 'name', 'service', 'source_service', 'source_name', 'projectId', 'td']
+  copy_props:
+    - 'id'
+    - 'channel'
+    - 'uid'
+    - 'uid_param'
+    - 'name'
+    - 'service'
+    - 'source_service'
+    - 'source_name'
+    - 'projectId'
+    - 'td'
+    - 'pancake'
+
   # events distribution. Format <event service>/<event name>:<table>
   destinations:
+    pixel/default: pixels
+    redir/default: redirects
     track/default: events
     track/activity: activity
     track/scroll: activity
@@ -23,6 +37,7 @@ clickhouse:
       id: UInt64
       # rockstat clientID
       uid: UInt64
+      uid_param: String
       # event date (UTC, server time)
       date: Date
       # event datetime (UTC, server time)
@@ -50,9 +65,14 @@ clickhouse:
       td_ref: String
       # Host
       td_host: String
+      # Transport: b beacon, f fetch
+      td_trans: String
       # extra transport data
       td_extra.key: Array(String)
       td_extra.value: Array(String)
+      # extra pancake
+      pancake_extra.key: Array(String)
+      pancake_extra.value: Array(String)
       # Extra data / custom data / key-value pairs
       extra.key: Array(String)
       extra.value: Array(String)
@@ -63,14 +83,23 @@ clickhouse:
     webhooks:
       _options:
         extend: base
-        engine: MergeTree(date, (service, name, date), 8192)
+        # engine: MergeTree(date, (service, name, date), 8192)
+        engine: MergeTree() PARTITION BY toYYYYMM(date) ORDER BY (projectId, date) SETTINGS index_granularity = 8192
+
+    pixels:
+      _options:
+        extend: webhooks
+
+    redirects:
+      _options:
+        extend: webhooks
 
     batches:
       source_service: String
       source_name: String
       _options:
         extend: base
-        engine: MergeTree(date, (service, name, date), 8192)
+        engine: MergeTree() PARTITION BY toYYYYMM(date) ORDER BY (projectId, date) SETTINGS index_granularity = 8192
 
 
     events:
@@ -254,6 +283,8 @@ clickhouse:
       user_ts: UInt64
       # timezone offset * 1000
       user_tzo: Int32
+      # time delta
+      user_td: Int64
       # id (user id from website that uses rockstat)
       user_id: String
       # google analytics client id
@@ -307,7 +338,7 @@ clickhouse:
       ### table options
       _options:
         extend: base
-        engine: MergeTree(date, (intHash32(uid), date), 8192)
+        engine: MergeTree() PARTITION BY toYYYYMM(date) ORDER BY (projectId, date, intHash32(uid)) SETTINGS index_granularity = 8192
 
     activity:
       _options:
@@ -319,31 +350,31 @@ clickhouse:
       # size: int
       # message: str
 
-    logs:
-      # unique event id
-      id: UInt64
-      # event date (UTC, server time)
-      date: Date
-      # event datetime (UTC, server time)
-      ts: DateTime
-      # container id
-      cid: String
-      # source service
-      name: String
-      # stdout / stderr
-      source: String
-      # standard level number 10=debug 20=info etc..]
-      # Message size
-      size: UInt32
-      # Log message
-      message: String
-      _options:
-        engine: MergeTree(date, (date, id), 8192)
+    # logs:
+    #   # unique event id
+    #   id: UInt64
+    #   # event date (UTC, server time)
+    #   date: Date
+    #   # event datetime (UTC, server time)
+    #   ts: DateTime
+    #   # container id
+    #   cid: String
+    #   # source service
+    #   name: String
+    #   # stdout / stderr
+    #   source: String
+    #   # standard level number 10=debug 20=info etc..]
+    #   # Message size
+    #   size: UInt32
+    #   # Log message
+    #   message: String
+    #   _options:
+    #     engine: MergeTree(date, (date, id), 8192)
 
-    ping:
-      id__: String
-      _options:
-        extend: webhooks
+    # ping:
+    #   id__: String
+    #   _options:
+    #     extend: webhooks
 
     migrations:
       name: String
