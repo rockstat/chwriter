@@ -277,6 +277,20 @@ clickhouse:
       browser_nc_effectiveType: String
       browser_nc_downlinkMax: String
 
+      # Navigator extra
+      # hardwareConcurrency
+      # browser_ne_hc: Int32
+      # deviceMemory
+      # browser_ne_dm: Int32
+
+      # Battery
+      # Available
+      # browser_nb_a: Int8
+      # Level
+      # browser_nb_l: Int8
+      # Charging
+      # browser_nb_ch: Int8
+
       # timezone name
       user_tz: String
       # timestamp
@@ -344,6 +358,7 @@ clickhouse:
       _options:
         extend: events
     
+
       # cid: str
       # name: str
       # source: int
